@@ -1,6 +1,6 @@
 # Archivo: factories/llm_factory.py
 
-from application.interfaces.infrastructure.llm_interface import LLMInterface
+from application.interfaces.llm_interface import LLMInterface
 from application.enums.llm_provider import LLMProvider
 
 class LLMProviderFactory:

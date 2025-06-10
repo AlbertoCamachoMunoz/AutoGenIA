@@ -1,7 +1,7 @@
 # cli.py
 
 from application.use_cases.autogen_runtime import run_autogen_chat
-from infrastructure.dependency_injector import DependencyInjector
+from application.dependency_injection import DependencyInjector
 from application.enums.llm_provider import LLMProvider
 
 
