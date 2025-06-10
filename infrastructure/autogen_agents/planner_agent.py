@@ -20,6 +20,7 @@ def create_planner_agent(llm_provider: LLMInterface) -> AssistantAgent:
             "model": llm_provider.get_model_name(),
             "base_url": llm_provider.get_base_url(),
             "api_key": llm_provider.get_api_key(),
+            "price": [0.0, 0.0]  # Sin coste real si es local
         }],
         "temperature": 0.3,
         "timeout": 30
@@ -31,5 +32,5 @@ def create_planner_agent(llm_provider: LLMInterface) -> AssistantAgent:
             "Eres un agente planificador. Tu tarea es dividir instrucciones del usuario en subtareas, "
             "y decidir qué agentes deben ejecutarlas. Habla poco, y actúa delegando trabajo."
         ),
-        llm_config=llm_config
+        llm_config=llm_config,
     )

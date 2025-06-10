@@ -1,6 +1,6 @@
 import requests
 import logging
-from config.settings import LLM_STUDIO_API_URL, LLM_STUDIO_HEADERS
+from config.settings import LLM_STUDIO_API_URL, LLM_STUDIO_HEADERS, LLM_STUDIO_DEFAULT_NAME, LLM_STUDIO_API_KEY
 from application.dtos.llm_app_request import LLMAppRequest
 from application.dtos.llm_app_response import LLMAppResponse
 from application.interfaces.llm_interface import LLMInterface
@@ -27,6 +27,9 @@ class LLMStudio(LLMInterface):
         """
         self.api_url = LLM_STUDIO_API_URL
         self.headers = LLM_STUDIO_HEADERS
+        self.default_model = LLM_STUDIO_DEFAULT_NAME
+        self.api_key = LLM_STUDIO_API_KEY
+        self.base_url = LLM_STUDIO_API_URL
 
     def send_data(self, app_request: LLMAppRequest) -> LLMAppResponse:
         """
@@ -94,3 +97,13 @@ class LLMStudio(LLMInterface):
         except Exception as e:
             logger.exception("Error inesperado: %s", e)
             return LLMStudioMapper.map_response(LLMStudioResponseDTO.empty(), StatusCode.ERROR, message="Error inesperado")
+    
+    def get_model_name(self) -> str:
+        return self.default_model
+    
+    def get_base_url(self) -> str:
+        # Para compatibilidad, aunque Gemini no usa URL directa
+        return self.base_url
+    def get_api_key(self) -> str:
+        # Para compatibilidad, aunque Gemini no usa URL directa
+        return self.api_key

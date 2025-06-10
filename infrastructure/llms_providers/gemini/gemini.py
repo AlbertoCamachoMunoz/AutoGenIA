@@ -42,6 +42,7 @@ class Gemini(LLMInterface):
             Exception: Si ocurre cualquier otro error al inicializar el cliente.
         """
         self.api_key = GEMINI_API_KEY
+        self.default_model = "gemini-2.0-flash"
         
         # Validación más estricta de la API key
         if not self.api_key or len(self.api_key) < 30:  # Longitud mínima aproximada
@@ -133,3 +134,13 @@ class Gemini(LLMInterface):
             status_code=StatusCode.ERROR,
             message=message
         )
+    
+    def get_model_name(self) -> str:
+        return self.default_model
+    
+    def get_base_url(self) -> str:
+        # Para compatibilidad, aunque Gemini no usa URL directa
+        return "https://generativelanguage.googleapis.com/"
+    def get_api_key(self) -> str:
+        # Para compatibilidad, aunque Gemini no usa URL directa
+        return self.api_key

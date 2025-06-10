@@ -35,8 +35,8 @@ class DependencyInjector:
             LLMInterface: Proveedor LLM concreto.
         """
         return LLMProviderFactory(
-            llm_studio=DependencyInjector._get_llm_studio_provider(),
-            gemini=DependencyInjector._get_gemini_provider()
+            llm_studio_provider=DependencyInjector._get_llm_studio_provider(),
+            gemini_provider=DependencyInjector._get_gemini_provider()
         ).get_provider(llm_type)
 
     @staticmethod
@@ -51,7 +51,7 @@ class DependencyInjector:
 
     @staticmethod
     def get_user_agent() -> UserProxyAgent:
-        return UserProxyAgent(name="usuario", human_input_mode="ALWAYS")
+        return UserProxyAgent(name="usuario", human_input_mode="ALWAYS", code_execution_config={"use_docker": False})
 
     @staticmethod
     def get_wikipedia_agent() -> AgentInterface:
@@ -75,30 +75,33 @@ class DependencyInjector:
         provider = DependencyInjector.get_llm_provider(llm_type)
         return create_planner_agent(provider)
 
-    # === Entorno AutoGen ===
 
     @staticmethod
-    def get_autogen_groupchat(llm_type: LLMProvider) -> GroupChatManager:
-        """
-        Construye y devuelve el GroupChatManager con los agentes funcionales y el planner.
+    def get_autogen_groupchat(llm_type: str) -> GroupChatManager:
+        provider: LLMInterface = DependencyInjector.get_llm_provider(llm_type)
 
-        Args:
-            llm_type (LLMProvider): LLM elegido para el planner.
-
-        Returns:
-            GroupChatManager: Orquestador del grupo AutoGen.
-        """
-        user = DependencyInjector.get_user_agent()
-        planner = DependencyInjector.get_planner_agent(llm_type)
+        planner = create_planner_agent(provider)
         wikipedia = AgentAutoGenWrapper(name="wikipedia", agent=DependencyInjector.get_wikipedia_agent())
-        email = AgentAutoGenWrapper(name="email", agent=DependencyInjector.get_email_agent())
+        email_sender = AgentAutoGenWrapper(name="email_sender", agent=DependencyInjector.get_email_agent())
 
-        group = GroupChat(
-            agents=[user, planner, wikipedia, email],
-            messages=[]
+        llm_config_for_selection = {
+            "config_list": [{
+                "model": provider.get_model_name(),
+                "base_url": provider.get_base_url(),
+                "api_key": provider.get_api_key()
+            }]
+        }
+
+        groupchat = GroupChat(
+            agents=[planner, wikipedia, email_sender],
+            messages=[],
+            max_round=10,
+            speaker_selection_method="auto",
+            select_speaker_auto_llm_config=llm_config_for_selection
         )
 
-        return GroupChatManager(groupchat=group)
+        return GroupChatManager(groupchat=groupchat, llm_config=llm_config_for_selection)
+
 
     @staticmethod
     def get_autogen_user_and_manager(llm_type: LLMProvider) -> dict:

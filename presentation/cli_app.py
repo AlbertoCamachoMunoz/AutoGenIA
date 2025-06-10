@@ -4,7 +4,6 @@ from application.use_cases.autogen_runtime import run_autogen_chat
 from application.dependency_injection import DependencyInjector
 from application.enums.llm_provider import LLMProvider
 
-
 def main():
     print("=== AUTO-GEN CLI ===")
     print("Selecciona el modelo LLM:")
@@ -21,7 +20,7 @@ def main():
         print("Opción no válida.")
         return
 
-    prompt = input("\nEscribe tu mensaje (ej: Busca info sobre Einstein y mándamela por email a x@x.com):\n> ")
+    prompt = input("\nEscribe tu mensaje (ej: Busca info sobre Einstein y mándamela por email a c4max0@gmail.com):\n> ")
 
     deps = DependencyInjector.get_autogen_user_and_manager(llm_type)
 

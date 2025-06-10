@@ -32,3 +32,33 @@ class LLMInterface(ABC):
                             en un DTO para mantener coherencia en la aplicación.
         """
         pass
+
+    @abstractmethod
+    def get_model_name(self) -> str:
+        """
+        Retorna el nombre del modelo subyacente que está usando el proveedor LLM.
+
+        Returns:
+            str: Nombre del modelo (ej. "gemini-pro", "llm-studio-v1", etc.)
+        """
+        pass
+
+    @abstractmethod
+    def get_base_url(self) -> str:
+        """
+        Retorna la URL del proveedor LLM.
+
+        Returns:
+            str: Base url (ej. "https://localhost:1234/v1")
+        """
+        pass
+
+    @abstractmethod
+    def get_api_key(self) -> str:
+        """
+        Retorna la api key LLM.
+
+        Returns:
+            str: API key (ej. "1234")
+        """
+        pass
