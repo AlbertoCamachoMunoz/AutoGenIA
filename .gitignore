@@ -1,0 +1,33 @@
+# ---- Editor/IDE ----
+.vscode/
+presentation/front_app/generated_audio/*
+presentation/front_app/temp_uploads/*
+
+# ---- Entorno Virtual (virtualenv) ----
+venv/
+.venv/
+
+# ---- Archivos de caché de Python ----
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyd
+*.py[cd]
+
+# ---- Compiled C extensions ----
+*.so
+
+# ---- Dist/Build/Install artifacts ----
+build/
+dist/
+*.egg-info/
+*.egg
+
+# ---- Configuración sensible (tu archivo de settings) ----
+config/settings.py
+
+# ---- Otros: Logs, coverage, etc. (opcional) ----
+*.log
+coverage/
+htmlcov/

@@ -1,0 +1,8 @@
+requests
+speechrecognition
+pydub 
+simpleaudio
+google-genai
+logging
+pydub
+flask

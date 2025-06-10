@@ -1,0 +1,160 @@
+/* Estilo general */
+body {
+    background-color: #212121;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+}
+
+.title{
+    margin-top: 15%;
+}
+/* Menú de arriba a la izquierda */
+.menu-btn {
+    position: absolute;
+    top: 2px;
+    left: 155px;
+    background-color: #333;
+    color: white;
+    border-color: #666;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.dropdown-menu{
+    position: absolute;
+    top: 5px !important;
+    left: 10px;
+    background-color: #333;
+    color: white;
+    border-color: #666;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.dropdown-item{
+    color: white;
+}
+
+.menu-btn:hover {
+    background-color: #555;
+}
+
+/* Contenedor del chat */
+.chat-container {
+    position: relative;
+    display: inline-block;
+    width: 50%;
+    margin-top: 2%;
+}
+
+/* Estilo del input de texto */
+.chat-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 20px;
+    border: 1px solid #444;
+    background-color: #222;
+    color: white;
+    font-size: 16px;
+    padding-right: 50px; /* Espacio para el botón de micrófono */
+}
+
+/* Botón del micrófono */
+.mic-button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.mic-button:hover {
+    color: #ddd;
+}
+
+/* Opciones rápidas */
+.quick-actions {
+    margin-top: 80px;
+    color: #ececec;
+    background-color: #0d0d0d60; /* negro */
+    border-radius: 20px;
+    padding: 10px;
+    /*font-weight: bold;*/
+    text-align: center;
+    border: 1px solid white;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    position: relative;
+    display: inline-block;
+    width: 50%;
+    margin-top: 2%;
+}
+
+.action-btn {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.action-btn:hover {
+    background-color: #555;
+}
+
+/* Resultados */
+#result {
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+/* Mensajes de error (colores rojo oscuro) */
+.error-message {
+    color: #FFFFFF;
+    background-color: #dc3545; /* Rojo */
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid #b02a37;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Mensajes de éxito (colores negros) */
+.success-message {
+    color: #ececec;
+    background-color: #0d0d0d; /* negro */
+    border-radius: 20px;
+    padding: 10px;
+    margin-top: 10px;
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid white;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Mensajes de estado/procesamiento (colores naranjas) */
+.processing-message {
+    color: #212529;
+    background-color: #ffc107; /* Amarillo */
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid #d39e00;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
