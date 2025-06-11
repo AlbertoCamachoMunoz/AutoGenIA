@@ -4,16 +4,20 @@ from autogen.agentchat import AssistantAgent
 from application.interfaces.llm_interface import LLMInterface
 
 
-def create_planner_agent(llm_provider: LLMInterface) -> AssistantAgent:
+def create_planner_agent(llm_provider: LLMInterface, functions: list = None) -> AssistantAgent:
     """
-    Crea un planner de AutoGen con un LLM configurado desde tu proveedor (Gemini, LLM Studio, etc).
+    Crea un planner de AutoGen con un LLM configurado desde tu proveedor (Gemini, LLM Studio, etc),
+    y opcionalmente una lista de funciones que el planner puede invocar.
 
     Args:
         llm_provider (LLMInterface): Proveedor de LLM inyectado
+        functions (list): Lista de funciones que se habilitan para el planner
 
     Returns:
         AssistantAgent: Agente configurado como planner
     """
+    if functions is None:
+        functions = []
 
     llm_config = {
         "config_list": [{
@@ -23,7 +27,8 @@ def create_planner_agent(llm_provider: LLMInterface) -> AssistantAgent:
             "price": [0.0, 0.0]  # Sin coste real si es local
         }],
         "temperature": 0.3,
-        "timeout": 30
+        "timeout": 30,
+        "functions": functions  # <<<< Aquí inyectamos las funciones
     }
 
     return AssistantAgent(

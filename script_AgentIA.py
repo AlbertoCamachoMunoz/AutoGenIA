@@ -75,6 +75,7 @@ user = UserProxyAgent(
     human_input_mode="ALWAYS",
     max_consecutive_auto_reply=1,
     code_execution_config={"excutor": code_executor_config},
+    human_input_mode="TERMINATE",
 )
 
 # Implementación de la función herramienta

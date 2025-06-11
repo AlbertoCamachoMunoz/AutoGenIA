@@ -13,7 +13,7 @@ from infrastructure.agents.wikipedia.dtos.wikipedia_response_dto import Wikipedi
 
 class WikipediaAgent(AgentInterface):
     def run(self, request: AgentAppRequest) -> AgentAppResponse:
-        print(f"Agente wikipedia recibe datos para buscar: {request.input_data}")
+        print(f"Agente wikipedia recibe datos para buscar: {request}")
         try:
             internal_request = WikipediaMapper.map_request(request)
             response = self._search(internal_request)
