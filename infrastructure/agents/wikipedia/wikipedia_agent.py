@@ -61,12 +61,15 @@ class WikipediaAgent(AgentInterface):
             parsed = mwparserfromhell.parse(wikitext)
             clean_text = parsed.strip_code().strip()
 
-            return WikipediaResponseDTO(
+            wiki = WikipediaResponseDTO(
                 content=clean_text,
                 status=StatusCode.SUCCESS,
                 message="Artículo encontrado",
                 title=request.title
             )
+        
+            print(f"Agente objeto que devuelvo: {wiki}")
+            return wiki
 
         except Exception as e:
             return WikipediaResponseDTO.empty()._replace(

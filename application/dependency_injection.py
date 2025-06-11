@@ -4,6 +4,8 @@ from autogen.agentchat import UserProxyAgent, register_function, AssistantAgent
 from application.enums.llm_provider import LLMProvider
 from application.interfaces.llm_interface import LLMInterface
 from application.interfaces.agent_interface import AgentInterface
+from application.dtos.agent_app_request import AgentAppRequest
+
 
 from infrastructure.autogen_agents.planner_agent import create_planner_agent
 from infrastructure.autogen_adapters.agent_autogen_wrapper import AgentAutoGenWrapper
@@ -84,17 +86,13 @@ class DependencyInjector:
         wikipedia = DependencyInjector.get_wikipedia_agent()
 
         # Función real que se ejecutará cuando se llame desde el planner
-        def execute_wikipedia(title: str) -> str:
-            """
-            Busca información en Wikipedia a partir de un título.
-
-            Args:
-                title (str): Título del artículo de Wikipedia
-            
-            Returns:
-                str: Contenido limpio del artículo
-            """
-            return WikipediaAgent().run(title)
+        def execute_wikipedia(title: str) -> dict:
+            response = WikipediaAgent().run(AgentAppRequest(input_data=title))
+            return {
+                "content": response.content,
+                "status": response.status.name,  # Pasamos el nombre del enum como string
+                "message": response.message
+            }
 
         # Registrar la función en AutoGen
         register_function(
@@ -118,7 +116,7 @@ class DependencyInjector:
         groupchat = GroupChat(
             agents=[planner, wikipedia],
             messages=[],
-            max_round=5,
+            max_round=10,
             speaker_selection_method="auto",
             allow_repeat_speaker=False,
             select_speaker_auto_llm_config=llm_config_for_selection

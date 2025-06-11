@@ -38,4 +38,6 @@ def create_planner_agent(llm_provider: LLMInterface, functions: list = None) -> 
             "y decidir qué agentes deben ejecutarlas. Habla poco, y actúa delegando trabajo."
         ),
         llm_config=llm_config,
+        max_consecutive_auto_reply=2,  # Máximo 2 respuestas seguidas
+        is_termination_msg=lambda x: "TERMINATE" in x.get("content", "").upper()
     )
