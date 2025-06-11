@@ -5,3 +5,4 @@ pyautogen
 mwparserfromhell
 google-api-core
 openai
+autogen

@@ -1,5 +1,5 @@
-from autogen.agentchat import UserProxyAgent
 from autogen import GroupChat, GroupChatManager
+from autogen.agentchat import UserProxyAgent, register_function
 
 from application.enums.llm_provider import LLMProvider
 from application.interfaces.llm_interface import LLMInterface
@@ -21,19 +21,8 @@ class DependencyInjector:
     Inyector de dependencias centrado exclusivamente en los agentes AutoGen.
     """
 
-    # === LLMs disponibles ===
-
     @staticmethod
     def get_llm_provider(llm_type: LLMProvider) -> LLMInterface:
-        """
-        Devuelve la implementación del proveedor de LLM elegido.
-
-        Args:
-            llm_type (LLMProvider): Enumeración del proveedor deseado.
-
-        Returns:
-            LLMInterface: Proveedor LLM concreto.
-        """
         return LLMProviderFactory(
             llm_studio_provider=DependencyInjector._get_llm_studio_provider(),
             gemini_provider=DependencyInjector._get_gemini_provider()
@@ -63,18 +52,8 @@ class DependencyInjector:
 
     @staticmethod
     def get_planner_agent(llm_type: LLMProvider) -> AgentInterface:
-        """
-        Devuelve el agente planificador con el LLM que el usuario ha indicado.
-
-        Args:
-            llm_type (LLMProvider): Tipo de LLM deseado para el planner.
-
-        Returns:
-            AssistantAgent: Planner configurado.
-        """
         provider = DependencyInjector.get_llm_provider(llm_type)
         return create_planner_agent(provider)
-
 
     @staticmethod
     def get_autogen_groupchat(llm_type: str) -> GroupChatManager:
@@ -82,7 +61,27 @@ class DependencyInjector:
 
         planner = create_planner_agent(provider)
         wikipedia = AgentAutoGenWrapper(name="wikipedia", agent=DependencyInjector.get_wikipedia_agent())
-        email_sender = AgentAutoGenWrapper(name="email_sender", agent=DependencyInjector.get_email_agent())
+
+        # ---- registrar las funciones de los ejecutores en el planner ----
+        def execute_wikipedia(title: str) -> str:
+            """
+            Busca información en Wikipedia a partir de un título.
+
+            Args:
+                title (str): Título del artículo de Wikipedia
+            
+            Returns:
+                str: Contenido limpio del artículo
+            """
+            return DependencyInjector.get_wikipedia_agent().run(title)
+
+        register_function(
+            execute_wikipedia,
+            name="wikipedia",
+            description="Busca información en Wikipedia a partir de un título.",
+            caller=planner,
+            executor=wikipedia
+        )
 
         llm_config_for_selection = {
             "config_list": [{
@@ -93,30 +92,18 @@ class DependencyInjector:
         }
 
         groupchat = GroupChat(
-            agents=[planner, wikipedia, email_sender],
+            agents=[planner, wikipedia],
             messages=[],
-            max_round=10,
+            max_round=5,
             speaker_selection_method="auto",
+            allow_repeat_speaker=False,
             select_speaker_auto_llm_config=llm_config_for_selection
         )
 
         return GroupChatManager(groupchat=groupchat, llm_config=llm_config_for_selection)
 
-
     @staticmethod
     def get_autogen_user_and_manager(llm_type: LLMProvider) -> dict:
-        """
-        Inyecta los objetos necesarios al caso de uso.
-
-        Args:
-            llm_type (LLMProvider): LLM elegido para el planner.
-
-        Returns:
-            dict: {'user': UserProxyAgent, 'manager': GroupChatManager}
-        """
         user = DependencyInjector.get_user_agent()
         manager = DependencyInjector.get_autogen_groupchat(llm_type)
-        return {
-            "user": user,
-            "manager": manager
-        }
+        return {"user": user, "manager": manager}
