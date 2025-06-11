@@ -9,9 +9,9 @@ from autogen.coding import LocalCommandLineCodeExecutor
 # Configuración del modelo
 config_list = [
     {
-        "model": "",
-        "base_url": "http://localhost:4000",  # lite-llm
-        "api_key": "ollama",
+        "model": "llama-3.2-1b-instruct",
+        "base_url": "http://localhost:1234/v1",  # lite-llm
+        "api_key": "token",
     }
 ]
 
@@ -74,8 +74,7 @@ user = UserProxyAgent(
     name="supervisor",
     human_input_mode="ALWAYS",
     max_consecutive_auto_reply=1,
-    code_execution_config={"excutor": code_executor_config},
-    human_input_mode="TERMINATE",
+    code_execution_config={"excutor": code_executor_config, "use_docker": False},
 )
 
 # Implementación de la función herramienta
@@ -92,9 +91,12 @@ def wikipedia_search(title: str) -> str:
     ).json()
 
     page = next(iter(response["query"]["pages"].values()))
+    print("página", page)
     wikicode = page["revisions"][0]["*"]
     parsed_wikicode = mwparserfromhell.parse(wikicode)
     content = parsed_wikicode.strip_code()
+
+    print("contenido", content)
 
     return json.dumps({
         "name": "wikipedia_search",

@@ -1,59 +1,63 @@
 # infrastructure/autogen_adapters/agent_autogen_wrapper.py
 
 import json
+import logging
 from autogen.agentchat import AssistantAgent
 from application.interfaces.agent_interface import AgentInterface
 from application.dtos.agent_app_request import AgentAppRequest
+from application.dtos.agent_app_response import AgentAppResponse
+from infrastructure.autogen_adapters.mappers.function_execution_mapper import FunctionExecutionMapper
+from infrastructure.autogen_adapters.dtos.function_execution_request_dto import FunctionExecutionRequestDTO
+from infrastructure.autogen_adapters.dtos.function_execution_response_dto import FunctionExecutionResponseDTO, FunctionExecutionStatus
+
+
+logger = logging.getLogger(__name__)
 
 
 class AgentAutoGenWrapper(AssistantAgent):
-    """
-    Adaptador que envuelve un agente funcional (implementa AgentInterface)
-    como un AssistantAgent de AutoGen, permitiendo su uso como ejecutor de funciones.
-    """
-
     def __init__(self, name: str, agent: AgentInterface):
         super().__init__(
             name=name,
-            llm_config=False,  # No usa LLM
+            llm_config=False,
             system_message=f"Wrapper del agente funcional «{name}».",
             human_input_mode="NEVER"
         )
         self._agent = agent
 
     def execute_function(self, function_call, **kwargs):
-        print(f"[DEBUG] Ejecutando execute_function en {self.name} con:", function_call)
-
         try:
+            logger.debug(f"[{self.name}] Ejecutando execute_function con: {function_call}")
+
             if isinstance(function_call, str):
                 function_call = json.loads(function_call)
+                logger.debug(f"[{self.name}] function_call parseado desde string: {function_call}")
 
+            name = function_call.get("name", self.name)
             arguments = function_call.get("arguments", {})
+
             if isinstance(arguments, str):
                 arguments = json.loads(arguments)
+                logger.debug(f"[{self.name}] arguments parseados desde string: {arguments}")
 
-            input_str = arguments.get("title", "")
-            if not input_str:
-                raise ValueError("No se encontró el campo 'title' en los argumentos")
+            request_dto = FunctionExecutionRequestDTO(name=name, arguments=arguments)
+            logger.debug(f"[{self.name}] request_dto creado: {request_dto}")
 
-            print(f"[DEBUG] Ejecutando acción con entrada: {input_str}")
+            app_request = FunctionExecutionMapper.map_request(request_dto)
+            logger.debug(f"[{self.name}] app_request mapeado: {app_request}")
 
-            result = self._agent.run(AgentAppRequest(input_data=input_str))
+            app_response = self._agent.run(app_request)
+            logger.debug(f"[{self.name}] app_response recibido: {app_response}")
 
-            # ✅ Se devuelve una tupla: (final, resultado)
-            return True, {
-                "name": self.name,
-                "content": result.content
-            }
+            response_dto = FunctionExecutionMapper.map_response(agent_name=self.name, app_response=app_response)
+            logger.debug(f"[{self.name}] response_dto generado: {response_dto}")
 
-        except json.JSONDecodeError as e:
-            return True, {
-                "name": self.name,
-                "content": f"[ERROR JSON] {str(e)}"
-            }
+            return True, response_dto.__dict__
 
         except Exception as e:
-            return True, {
-                "name": self.name,
-                "content": f"[ERROR interno] {str(e)}"
-            }
+            logger.error(f"[{self.name}] Error en execute_function: {str(e)}", exc_info=True)
+            error_dto = FunctionExecutionResponseDTO(
+                name=self.name,
+                content=str(e),
+                status=FunctionExecutionStatus.ERROR
+            )
+            return True, error_dto.__dict__

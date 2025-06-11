@@ -1,7 +1,8 @@
-# application/dtos/agent_app_request.py
-from dataclasses import dataclass
-from typing import Any
+from application.enums.status_code import StatusCode
 
-@dataclass
+
 class AgentAppRequest:
-    input_data: Any  # Puede ser texto, JSON, etc., dependiendo del agente
+    def __init__(self, input_data: str, status: StatusCode = StatusCode.SUCCESS, message: str = "OK"):
+        self.input_data = input_data
+        self.status = status
+        self.message = message

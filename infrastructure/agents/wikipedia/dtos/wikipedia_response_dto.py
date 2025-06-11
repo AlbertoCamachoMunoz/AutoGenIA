@@ -1,14 +1,10 @@
-# infrastructure/agents/wikipedia/dtos/wikipedia_response_dto.py
-
 from enum import Enum
 from dataclasses import dataclass
-
-class StatusCode(Enum):
-    SUCCESS = "SUCCESS"
-    ERROR = "ERROR"
+from application.enums.status_code import StatusCode
 
 @dataclass
 class WikipediaResponseDTO:
     content: str
     status: StatusCode
     message: str = "OK"
+    title: str = ""
