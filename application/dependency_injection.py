@@ -6,7 +6,7 @@ from application.interfaces.llm_interface import LLMInterface
 from application.interfaces.agent_interface import AgentInterface
 from application.dtos.agent_app_request import AgentAppRequest
 
-from infrastructure.autogen_agents.planner_agent import create_planner_agent
+from infrastructure.autogen_agents.planner_agent import PlannerAgentFactory
 from infrastructure.autogen_adapters.agent_autogen_wrapper import AgentAutoGenWrapper
 
 from infrastructure.agents.wikipedia.wikipedia_agent import WikipediaAgent
@@ -67,7 +67,7 @@ class DependencyInjector:
             except NotImplementedError:
                 continue
 
-        return create_planner_agent(provider, functions=function_list)
+        return PlannerAgentFactory.create(provider, function_list)
 
     # === BUILD group chat ===
     @staticmethod
