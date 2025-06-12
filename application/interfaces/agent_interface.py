@@ -7,3 +7,8 @@ class AgentInterface(ABC):
     @abstractmethod
     def run(self, request: AgentAppRequest) -> AgentAppResponse:
         pass
+
+    @classmethod
+    @abstractmethod
+    def get_function_list(cls) -> list:
+        pass

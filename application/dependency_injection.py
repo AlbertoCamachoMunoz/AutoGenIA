@@ -6,7 +6,6 @@ from application.interfaces.llm_interface import LLMInterface
 from application.interfaces.agent_interface import AgentInterface
 from application.dtos.agent_app_request import AgentAppRequest
 
-
 from infrastructure.autogen_agents.planner_agent import create_planner_agent
 from infrastructure.autogen_adapters.agent_autogen_wrapper import AgentAutoGenWrapper
 
@@ -18,27 +17,12 @@ from infrastructure.llms_providers.gemini.gemini import Gemini
 from infrastructure.llms_providers.llm_studio.llm_studio import LLMStudio
 
 
-# Definición del function_list
-FUNCTION_LIST = [
-    {
-        "name": "wikipedia_search",
-        "description": "Busca contenido limpio de Wikipedia.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "title": {"type": "string", "description": "Título del artículo de Wikipedia"}
-            },
-            "required": ["title"]
-        }
-    }
-]
-
-
 class DependencyInjector:
     """
     Inyector de dependencias centrado exclusivamente en los agentes AutoGen.
     """
 
+    # === LLMs ===
     @staticmethod
     def get_llm_provider(llm_type: LLMProvider) -> LLMInterface:
         return LLMProviderFactory(
@@ -66,16 +50,37 @@ class DependencyInjector:
 
     @staticmethod
     def get_wikipedia_agent() -> AgentAutoGenWrapper:
-        return AgentAutoGenWrapper(name="wikipedia", agent=WikipediaAgent())
+        return AgentAutoGenWrapper(name="wikipedia", agent_class=WikipediaAgent, agent=WikipediaAgent())
 
     @staticmethod
     def get_email_agent() -> AgentAutoGenWrapper:
-        return AgentAutoGenWrapper(name="email", agent=EmailAgent())
+        return AgentAutoGenWrapper(name="email", agent_class=EmailAgent, agent=EmailAgent())
 
     @staticmethod
     def get_planner_agent(llm_type: LLMProvider) -> AssistantAgent:
         provider = DependencyInjector.get_llm_provider(llm_type)
-        return create_planner_agent(provider, functions=FUNCTION_LIST)
+
+        # Obtenemos TODOS los agentes funcionales que pueden exponer funciones
+        functional_wrappers = [
+            DependencyInjector.get_wikipedia_agent(),
+            DependencyInjector.get_email_agent(),
+            # Añade más agentes aquí si los tuvieras
+        ]
+
+        # Recogemos todas las funciones disponibles
+        function_list = []
+        for wrapper in functional_wrappers:
+            try:
+                functions = wrapper.get_function_list()
+                function_list.extend(functions)
+            except NotImplementedError:
+                continue  # Saltar agentes que no implementan funciones
+
+        return create_planner_agent(provider, functions=function_list)
+
+    # === FIN Agentes funcionales ===
+
+    # === BUILD group chat ===
 
     @staticmethod
     def get_autogen_groupchat(llm_type: LLMProvider) -> GroupChatManager:

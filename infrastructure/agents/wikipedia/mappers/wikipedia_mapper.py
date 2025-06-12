@@ -10,10 +10,22 @@ class WikipediaMapper:
     def map_request(app_request: AgentAppRequest) -> WikipediaRequestDTO:
         return WikipediaRequestDTO(title=app_request.input_data)
 
+    # @staticmethod
+    # def map_response(dto: WikipediaResponseDTO) -> AgentAppResponse:
+    #     return AgentAppResponse(
+    #         content=dto.content,
+    #         status=dto.status,
+    #         message=dto.message
+    #     )
+
     @staticmethod
     def map_response(dto: WikipediaResponseDTO) -> AgentAppResponse:
+        # Cortamos el contenido a las primeras 20 palabras
+        words = dto.content.split()
+        truncated_content = " ".join(words[:20]) + ("..." if len(words) > 20 else "")
+        
         return AgentAppResponse(
-            content=dto.content,
+            content=truncated_content,
             status=dto.status,
             message=dto.message
         )

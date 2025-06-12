@@ -4,13 +4,25 @@ from application.interfaces.agent_interface import AgentInterface
 
 
 class EmailAgent(AgentInterface):
-    """
-    Agente funcional que simula el envío de un correo electrónico.
-
-    Espera un input del tipo:
-    "Send this to email prueba@dominio.com: Einstein was a physicist born in 1879..."
-    """
-
+    
+    @classmethod
+    def get_function_list(cls) -> list:
+        return [
+            {
+                "name": "send_email",
+                "description": "Envía un correo electrónico.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "to": {"type": "string"},
+                        "subject": {"type": "string"},
+                        "body": {"type": "string"}
+                    },
+                    "required": ["to", "subject", "body"]
+                }
+            }
+        ]
+    
     def run(self, input_data: str) -> str:
         try:
             # Extracción simple de destinatario y mensaje (solo para pruebas)

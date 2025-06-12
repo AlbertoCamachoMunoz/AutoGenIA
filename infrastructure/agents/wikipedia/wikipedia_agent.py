@@ -14,8 +14,23 @@ from infrastructure.agents.wikipedia.mappers.wikipedia_mapper import WikipediaMa
 
 MAX_REDIRECT_DEPTH = 3
 
-
 class WikipediaAgent(AgentInterface):
+    @classmethod
+    def get_function_list(cls) -> list:
+        return [
+            {
+                "name": "wikipedia_search",
+                "description": "Busca contenido limpio de Wikipedia.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "title": {"type": "string", "description": "Título del artículo de Wikipedia"}
+                    },
+                    "required": ["title"]
+                }
+            }
+        ]
+
     def run(self, request: AgentAppRequest) -> AgentAppResponse:
         print(f"Agente wikipedia recibe datos para buscar: {request}")
         try:
