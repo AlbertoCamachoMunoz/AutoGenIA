@@ -23,6 +23,9 @@ class AgentAutoGenWrapper(AssistantAgent):
         self._agent_class = agent_class
         self._agent = agent
 
+    def get_agent(self):
+        return self._agent
+    
     def get_function_list(self):
         """Obtiene la lista de funciones soportadas por este agente."""
         return self._agent_class.get_function_list()

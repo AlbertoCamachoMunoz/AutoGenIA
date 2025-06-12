@@ -4,7 +4,15 @@ from application.interfaces.agent_interface import AgentInterface
 
 
 class EmailAgent(AgentInterface):
-    
+
+    @classmethod
+    def get_function_name(cls) -> str:
+        return "email_send"
+
+    @classmethod
+    def get_function_description(cls) -> str:
+        return "Envía un email."
+
     @classmethod
     def get_function_list(cls) -> list:
         return [

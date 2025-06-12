@@ -22,7 +22,6 @@ class DependencyInjector:
     Inyector de dependencias centrado exclusivamente en los agentes AutoGen.
     """
 
-    # === LLMs ===
     @staticmethod
     def get_llm_provider(llm_type: LLMProvider) -> LLMInterface:
         return LLMProviderFactory(
@@ -37,8 +36,6 @@ class DependencyInjector:
     @staticmethod
     def _get_gemini_provider() -> LLMInterface:
         return Gemini()
-
-    # === Agentes funcionales ===
 
     @staticmethod
     def get_user_agent() -> UserProxyAgent:
@@ -60,55 +57,34 @@ class DependencyInjector:
     def get_planner_agent(llm_type: LLMProvider) -> AssistantAgent:
         provider = DependencyInjector.get_llm_provider(llm_type)
 
-        # Obtenemos TODOS los agentes funcionales que pueden exponer funciones
         functional_wrappers = [
             DependencyInjector.get_wikipedia_agent(),
             DependencyInjector.get_email_agent(),
-            # Añade más agentes aquí si los tuvieras
         ]
 
-        # Recogemos todas las funciones disponibles
         function_list = []
         for wrapper in functional_wrappers:
             try:
                 functions = wrapper.get_function_list()
                 function_list.extend(functions)
             except NotImplementedError:
-                continue  # Saltar agentes que no implementan funciones
+                continue
 
         return create_planner_agent(provider, functions=function_list)
 
-    # === FIN Agentes funcionales ===
-
     # === BUILD group chat ===
-
     @staticmethod
     def get_autogen_groupchat(llm_type: LLMProvider) -> GroupChatManager:
         provider: LLMInterface = DependencyInjector.get_llm_provider(llm_type)
-
-        # Crear planner con funciones inyectadas
+        #agente planificador
         planner = DependencyInjector.get_planner_agent(llm_type)
-        wikipedia = DependencyInjector.get_wikipedia_agent()
+        
+        #agentes funcionales
+        functional_wrappers = [
+            DependencyInjector.get_wikipedia_agent(),
+            DependencyInjector.get_email_agent()
+        ]
 
-        # Función real que se ejecutará cuando se llame desde el planner
-        def execute_wikipedia(title: str) -> dict:
-            response = WikipediaAgent().run(AgentAppRequest(input_data=title))
-            return {
-                "content": response.content,
-                "status": response.status.name,  # Pasamos el nombre del enum como string
-                "message": response.message
-            }
-
-        # Registrar la función en AutoGen
-        register_function(
-            execute_wikipedia,
-            name="wikipedia_search",  # Nombre debe coincidir con FUNCTION_LIST
-            description="Busca contenido limpio de Wikipedia.",
-            caller=planner,   # Quién puede invocar esta función
-            executor=wikipedia  # Quién la ejecuta
-        )
-
-        # Configuración para seleccionar speakers
         llm_config_for_selection = {
             "config_list": [{
                 "model": provider.get_model_name(),
@@ -117,9 +93,35 @@ class DependencyInjector:
             }]
         }
 
-        # Grupo de chat
+        # Función que crea una función ejecutable por AutoGen
+        def create_function_executor(wrapper):
+            def function_executor(title: str):
+                response = wrapper.run(AgentAppRequest(input_data=title))
+                return {
+                    "content": response.content,
+                    "status": response.status.name,
+                    "message": response.message
+                }
+            return function_executor
+
+        # Registrar todas las funciones dinámicamente
+        for wrapper in functional_wrappers:
+            agent_class = wrapper._agent.__class__
+            function_name = agent_class.get_function_name()
+            function_desc = agent_class.get_function_description()
+
+            executor_func = create_function_executor(wrapper)
+
+            register_function(
+                executor_func,
+                name=function_name,
+                description=function_desc,
+                caller=planner,
+                executor=wrapper
+            )
+
         groupchat = GroupChat(
-            agents=[planner, wikipedia],
+            agents=[planner] + functional_wrappers,
             messages=[],
             max_round=10,
             speaker_selection_method="auto",

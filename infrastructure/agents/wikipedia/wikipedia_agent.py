@@ -16,6 +16,14 @@ MAX_REDIRECT_DEPTH = 3
 
 class WikipediaAgent(AgentInterface):
     @classmethod
+    def get_function_name(cls) -> str:
+        return "wikipedia_search"
+
+    @classmethod
+    def get_function_description(cls) -> str:
+        return "Busca contenido limpio de Wikipedia."
+
+    @classmethod
     def get_function_list(cls) -> list:
         return [
             {
