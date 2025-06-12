@@ -21,7 +21,7 @@ class DependencyInjector:
     """
     Inyector de dependencias centrado exclusivamente en los agentes AutoGen.
     """
-
+    # === LLM PROVIDERS ===
     @staticmethod
     def get_llm_provider(llm_type: LLMProvider) -> LLMInterface:
         return LLMProviderFactory(
@@ -37,13 +37,10 @@ class DependencyInjector:
     def _get_gemini_provider() -> LLMInterface:
         return Gemini()
 
+    # === AGENTS ===
     @staticmethod
     def get_user_agent() -> UserProxyAgent:
-        return UserProxyAgent(
-            name="usuario",
-            human_input_mode="ALWAYS",
-            code_execution_config={"use_docker": False}
-        )
+        return UserProxyAgent(name="usuario", human_input_mode="ALWAYS", code_execution_config={"use_docker": False})
 
     @staticmethod
     def get_wikipedia_agent() -> AgentAutoGenWrapper:
@@ -78,7 +75,7 @@ class DependencyInjector:
         provider: LLMInterface = DependencyInjector.get_llm_provider(llm_type)
         #agente planificador
         planner = DependencyInjector.get_planner_agent(llm_type)
-        
+
         #agentes funcionales
         functional_wrappers = [
             DependencyInjector.get_wikipedia_agent(),
