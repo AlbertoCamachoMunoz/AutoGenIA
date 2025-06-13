@@ -34,7 +34,8 @@ class WikipediaAgent(AgentInterface):
                     "properties": {
                         "title": {"type": "string", "description": "Título del artículo de Wikipedia"}
                     },
-                    "required": ["title"]
+                    "required": ["title"],
+                    # "additionalProperties": False          # ⬅️ esto impide 'search', 'kwargs', etc.
                 }
             }
         ]

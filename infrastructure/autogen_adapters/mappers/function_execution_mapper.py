@@ -8,10 +8,8 @@ from infrastructure.autogen_adapters.dtos.function_execution_response_dto import
 class FunctionExecutionMapper:
     @staticmethod
     def map_request(dto: FunctionExecutionRequestDTO) -> AgentAppRequest:
-        input_data = dto.arguments.get("title") or dto.arguments.get("query")
-        if not input_data:
-            raise ValueError(f"Falta 'title' o 'query' en los argumentos de {dto.name}")
-        return AgentAppRequest(input_data=input_data)
+        # Toda la llamada va en content
+        return AgentAppRequest(content=dto.arguments)
 
     @staticmethod
     def map_response(agent_name: str, app_response: AgentAppResponse) -> FunctionExecutionResponseDTO:

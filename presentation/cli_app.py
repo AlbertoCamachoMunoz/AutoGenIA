@@ -1,4 +1,6 @@
 # cli.py
+import logging
+logging.basicConfig(level=logging.ERROR, format="%(message)s")  # nivel global
 
 from application.use_cases.autogen_runtime import run_autogen_chat
 from application.dependency_injection import DependencyInjector

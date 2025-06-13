@@ -1,9 +1,10 @@
+from typing import Any, Dict
+
 from autogen import GroupChat, GroupChatManager
 from autogen.agentchat import UserProxyAgent, register_function, AssistantAgent
 
 from application.enums.llm_provider import LLMProvider
 from application.interfaces.llm_interface import LLMInterface
-from application.interfaces.agent_interface import AgentInterface
 from application.dtos.agent_app_request import AgentAppRequest
 
 from infrastructure.autogen_agents.planner_agent import PlannerAgentFactory
@@ -55,7 +56,6 @@ class DependencyInjector:
         provider = DependencyInjector.get_llm_provider(llm_type)
 
         functional_wrappers = [
-            DependencyInjector.get_wikipedia_agent(),
             DependencyInjector.get_email_agent(),
         ]
 
@@ -73,10 +73,8 @@ class DependencyInjector:
     @staticmethod
     def get_autogen_groupchat(llm_type: LLMProvider) -> GroupChatManager:
         provider: LLMInterface = DependencyInjector.get_llm_provider(llm_type)
-        #agente planificador
         planner = DependencyInjector.get_planner_agent(llm_type)
 
-        #agentes funcionales
         functional_wrappers = [
             DependencyInjector.get_wikipedia_agent(),
             DependencyInjector.get_email_agent()
@@ -91,9 +89,9 @@ class DependencyInjector:
         }
 
         # Función que crea una función ejecutable por AutoGen
-        def create_function_executor(wrapper):
-            def function_executor(title: str):
-                response = wrapper.run(AgentAppRequest(input_data=title))
+        def create_function_executor(wrapper: AgentAutoGenWrapper):
+            def function_executor(**kwargs: Any) -> Dict[str, str]:
+                response = wrapper.run(AgentAppRequest(content=kwargs))
                 return {
                     "content": response.content,
                     "status": response.status.name,

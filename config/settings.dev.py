@@ -27,3 +27,11 @@ os.makedirs(AUDIO_INPUT_FOLDER, exist_ok=True)
 
 # RUTA COMPLETA para el fichero de salida TTS, si deseas un nombre fijo
 AUDIO_OUTPUT_FILE = os.path.join(AUDIO_OUTPUT_FOLDER, "output.wav")
+
+# Configuración para el servicio SMTP
+SMTP_SERVER = os.getenv("SMTP_SERVER", "sandbox.smtp.mailtrap.io")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "2525"))
+SMTP_USERNAME = os.getenv("SMTP_USERNAME", "0b8912a4ed76be")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "226639342b6cff")
+SMTP_FROM_EMAIL = os.getenv("SMTP_FROM_EMAIL", "AutoGenIA <autogenia@example.com>")
+
