@@ -1,21 +1,8 @@
-from autogen.agentchat import UserProxyAgent
-from autogen.agentchat.groupchat import GroupChatManager
+from autogen.agentchat import UserProxyAgent, GroupChat  # type: ignore
 
 
-def run_autogen_chat(
-    user: UserProxyAgent,
-    manager: GroupChatManager,
-    user_prompt: str
-) -> None:
+def run_autogen_chat(user: UserProxyAgent, manager: GroupChat, user_prompt: str):
     """
-    Caso de uso: ejecuta la conversación AutoGen.
-
-    Args:
-        user (UserProxyAgent): Usuario humano (inyectado).
-        manager (GroupChatManager): Orquestador del grupo (inyectado).
-        user_prompt (str): Mensaje inicial que lanza el flujo.
+    Lanza la conversación Autogen y devuelve el ChatResult original.
     """
-    user.initiate_chat(
-        manager,
-        message=user_prompt
-    )
+    return user.initiate_chat(manager, message=user_prompt)

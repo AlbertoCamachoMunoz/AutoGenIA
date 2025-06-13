@@ -1,133 +1,150 @@
+from __future__ import annotations
+
+import logging
 from typing import Any, Dict
 
 from autogen import GroupChat, GroupChatManager
-from autogen.agentchat import UserProxyAgent, register_function, AssistantAgent
+from autogen.agentchat import AssistantAgent, UserProxyAgent, register_function
 
+from application.dtos.agent_app_request import AgentAppRequest
 from application.enums.llm_provider import LLMProvider
 from application.interfaces.llm_interface import LLMInterface
-from application.dtos.agent_app_request import AgentAppRequest
+from application.factories.llm_provider_factory import LLMProviderFactory
+
+from infrastructure.llms_providers.llm_studio.llm_studio import LLMStudio
+from infrastructure.llms_providers.gemini.gemini import Gemini
 
 from infrastructure.autogen_agents.planner_agent import PlannerAgentFactory
 from infrastructure.autogen_adapters.agent_autogen_wrapper import AgentAutoGenWrapper
-
 from infrastructure.agents.wikipedia.wikipedia_agent import WikipediaAgent
-from infrastructure.agents.email.email_agent import EmailAgent  # Simulado
+from infrastructure.agents.email.email_agent import EmailAgent
 
-from application.factories.llm_provider_factory import LLMProviderFactory
-from infrastructure.llms_providers.gemini.gemini import Gemini
-from infrastructure.llms_providers.llm_studio.llm_studio import LLMStudio
+logger = logging.getLogger(__name__)
 
 
 class DependencyInjector:
     """
-    Inyector de dependencias centrado exclusivamente en los agentes AutoGen.
+    Inyector de dependencias para construir los agentes AutoGen y el GroupChatManager.
     """
-    # === LLM PROVIDERS ===
-    @staticmethod
-    def get_llm_provider(llm_type: LLMProvider) -> LLMInterface:
-        return LLMProviderFactory(
-            llm_studio_provider=DependencyInjector._get_llm_studio_provider(),
-            gemini_provider=DependencyInjector._get_gemini_provider()
-        ).get_provider(llm_type)
 
+    # cache de instancias LLM para evitar inicializaciones repetidas
+    _provider_cache: Dict[LLMProvider, LLMInterface] = {}
+
+    # ───────────────────── LLM PROVIDERS ──────────────────────
     @staticmethod
-    def _get_llm_studio_provider() -> LLMInterface:
+    def _llm_studio() -> LLMInterface:
         return LLMStudio()
 
     @staticmethod
-    def _get_gemini_provider() -> LLMInterface:
+    def _gemini() -> LLMInterface:
         return Gemini()
 
-    # === AGENTS ===
     @staticmethod
-    def get_user_agent() -> UserProxyAgent:
-        return UserProxyAgent(name="usuario", human_input_mode="ALWAYS", code_execution_config={"use_docker": False})
+    def get_llm_provider(llm_type: LLMProvider) -> LLMInterface:
+        if llm_type not in DependencyInjector._provider_cache:
+            provider = LLMProviderFactory(
+                llm_studio_provider=DependencyInjector._llm_studio(),
+                gemini_provider=DependencyInjector._gemini(),
+            ).get_provider(llm_type)
+
+            DependencyInjector._provider_cache[llm_type] = provider
+            logger.info("Cliente %s inicializado correctamente.", llm_type.value)
+
+        return DependencyInjector._provider_cache[llm_type]
+
+    # ───────────────────── BASE AGENTS ────────────────────────
+    @staticmethod
+    def _user_agent() -> UserProxyAgent:
+        return UserProxyAgent(
+            name="usuario",
+            human_input_mode="ALWAYS",
+            code_execution_config={"use_docker": False},
+        )
 
     @staticmethod
-    def get_wikipedia_agent() -> AgentAutoGenWrapper:
-        return AgentAutoGenWrapper(name="wikipedia", agent_class=WikipediaAgent, agent=WikipediaAgent())
+    def _wikipedia_wrapper() -> AgentAutoGenWrapper:
+        return AgentAutoGenWrapper("wikipedia", WikipediaAgent, WikipediaAgent())
 
     @staticmethod
-    def get_email_agent() -> AgentAutoGenWrapper:
-        return AgentAutoGenWrapper(name="email", agent_class=EmailAgent, agent=EmailAgent())
+    def _email_wrapper() -> AgentAutoGenWrapper:
+        return AgentAutoGenWrapper("email", EmailAgent, EmailAgent())
 
+    # ───────────────────── PLANNER ────────────────────────────
     @staticmethod
-    def get_planner_agent(llm_type: LLMProvider) -> AssistantAgent:
+    def _planner_agent(llm_type: LLMProvider) -> AssistantAgent:
         provider = DependencyInjector.get_llm_provider(llm_type)
+        function_wrappers = [DependencyInjector._email_wrapper()]
 
-        functional_wrappers = [
-            DependencyInjector.get_email_agent(),
+        function_list = [
+            fn for wrapper in function_wrappers for fn in wrapper.get_function_list()
         ]
-
-        function_list = []
-        for wrapper in functional_wrappers:
-            try:
-                functions = wrapper.get_function_list()
-                function_list.extend(functions)
-            except NotImplementedError:
-                continue
 
         return PlannerAgentFactory.create(provider, function_list)
 
-    # === BUILD group chat ===
+    # ───────────────────── GROUP CHAT ─────────────────────────
     @staticmethod
-    def get_autogen_groupchat(llm_type: LLMProvider) -> GroupChatManager:
-        provider: LLMInterface = DependencyInjector.get_llm_provider(llm_type)
-        planner = DependencyInjector.get_planner_agent(llm_type)
+    def _group_chat_manager(llm_type: LLMProvider) -> GroupChatManager:
+        provider = DependencyInjector.get_llm_provider(llm_type)
+        planner = DependencyInjector._planner_agent(llm_type)
 
-        functional_wrappers = [
-            DependencyInjector.get_wikipedia_agent(),
-            DependencyInjector.get_email_agent()
+        wrappers = [
+            DependencyInjector._wikipedia_wrapper(),
+            DependencyInjector._email_wrapper(),
         ]
 
-        llm_config_for_selection = {
-            "config_list": [{
-                "model": provider.get_model_name(),
-                "base_url": provider.get_base_url(),
-                "api_key": provider.get_api_key()
-            }]
+        llm_cfg = {
+            "config_list": [
+                {
+                    "model": provider.get_model_name(),
+                    "base_url": provider.get_base_url(),
+                    "api_key": provider.get_api_key(),
+                }
+            ]
         }
 
-        # Función que crea una función ejecutable por AutoGen
-        def create_function_executor(wrapper: AgentAutoGenWrapper):
-            def function_executor(**kwargs: Any) -> Dict[str, str]:
-                response = wrapper.run(AgentAppRequest(content=kwargs))
-                return {
-                    "content": response.content,
-                    "status": response.status.name,
-                    "message": response.message
-                }
-            return function_executor
+        # registrar dinámicamente cada función de wrapper
+        for wrapper in wrappers:
+            agent_cls = wrapper._agent.__class__
 
-        # Registrar todas las funciones dinámicamente
-        for wrapper in functional_wrappers:
-            agent_class = wrapper._agent.__class__
-            function_name = agent_class.get_function_name()
-            function_desc = agent_class.get_function_description()
+            def _executor(w: AgentAutoGenWrapper):
+                def exec_fn(**kwargs: Any) -> Dict[str, str]:
+                    dto = AgentAppRequest(content=kwargs)
+                    resp = w.run(dto)
+                    return {
+                        "content": resp.content,
+                        "status": resp.status.name,
+                        "message": resp.message,
+                    }
 
-            executor_func = create_function_executor(wrapper)
+                return exec_fn
 
             register_function(
-                executor_func,
-                name=function_name,
-                description=function_desc,
+                _executor(wrapper),
+                name=agent_cls.get_function_name(),
+                description=agent_cls.get_function_description(),
                 caller=planner,
-                executor=wrapper
+                executor=wrapper,
             )
 
-        groupchat = GroupChat(
-            agents=[planner] + functional_wrappers,
+        gchat = GroupChat(
+            agents=[planner] + wrappers,
             messages=[],
             max_round=10,
             speaker_selection_method="auto",
             allow_repeat_speaker=False,
-            select_speaker_auto_llm_config=llm_config_for_selection
+            select_speaker_auto_llm_config=llm_cfg,
         )
+        return GroupChatManager(groupchat=gchat, llm_config=llm_cfg)
 
-        return GroupChatManager(groupchat=groupchat, llm_config=llm_config_for_selection)
-
+    # ───────────────────── PUBLIC API ─────────────────────────
     @staticmethod
-    def get_autogen_user_and_manager(llm_type: LLMProvider) -> dict:
-        user = DependencyInjector.get_user_agent()
-        manager = DependencyInjector.get_autogen_groupchat(llm_type)
-        return {"user": user, "manager": manager}
+    def get_autogen_user_and_manager(llm_type: LLMProvider) -> Dict[str, Any]:
+        """
+        Devuelve un diccionario con las claves:
+          • 'user'    → UserProxyAgent
+          • 'manager' → GroupChatManager
+        """
+        return {
+            "user": DependencyInjector._user_agent(),
+            "manager": DependencyInjector._group_chat_manager(llm_type),
+        }

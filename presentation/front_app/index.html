@@ -1,50 +1,49 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
     <title>ChatIA</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/styles.css" />
 </head>
 <body>
-    <div class="container text-center">
-        <div class="title">
-            <!-- Botón de menú desplegable (Arriba a la izquierda) -->
-            <div class="dropdown">
-                <button class="menu-btn dropdown-toggle" id="llmDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    Chat_IA
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#" data-llm="llm_studio">LLM Studio</a></li>
-                    <li><a class="dropdown-item" href="#" data-llm="llm_gemini">Gemini</a></li>
-                </ul>
-            </div>
-
-            <!-- Pregunta principal -->
-            <h3 class="mt-4">¿En qué puedo ayudarte?</h3>
-        </div>
-       
-        <!-- Caja de entrada con botón de micrófono -->
-        <div class="chat-container">
-            <input type="text" id="chatInput" class="form-control chat-input" placeholder="Pregunta lo que quieras...">
-            <button id="micButton" class="mic-button" title="Hablar">
-                🎤
+    <!-- ─────────────── Título + selector de modelo ─────────────── -->
+    <div class="title">
+        <div class="dropdown">
+            <button class="menu-btn dropdown-toggle" id="llmDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                LLM Studio
             </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" data-llm="llm_studio">LLM Studio</a></li>
+            </ul>
         </div>
-
-        <!-- Opciones rápidas -->
-        <div class="quick-actions">
-            <p>Necesitas tener instalado FFmpeg para usar el audio en el navegador, en la app de consola si puedes usarlo </p>
-            <p>Puedes preguntarme lo que quieras, usando la caja de texto, o bien el icono del micrófono, </p>
-            <p>Para usar el micrófono, <strong>mantén el botón del micro presionado</strong>, pregúntame ,</p>
-                <p>    y al soltar el botón, se enviará la request </p>
-        </div>
-
-        <div id="result" class="mt-4"></div>
+        <h3 class="mt-4">¿En qué puedo ayudarte?</h3>
     </div>
 
+    <!-- ─────────────── Caja de entrada ─────────────── -->
+    <div class="chat-container">
+        <input id="chatInput" type="text" class="form-control chat-input" placeholder="Pregunta lo que quieras..." />
+        <button id="micBtn" class="mic-button"><i class="bi bi-mic-fill"></i></button>
+    </div>
+
+    <!-- ─────────────── Acciones rápidas ─────────────── -->
+    <div class="quick-actions">
+        <button class="action-btn" data-quick="Hola!">Saluda</button>
+        <button class="action-btn" data-quick="¿Quién eres?">¿Quién eres?</button>
+        <button class="action-btn" data-quick="Dame un chiste">Chiste</button>
+    </div>
+
+    <!-- ─────────────── Resultado ─────────────── -->
+    <div id="result"></div>
+
+    <!-- ─────────────── Panel Debug ─────────────── -->
+    <button id="debugToggle" class="debug-toggle">DEBUG</button>
+    <div id="debugPanel" class="debug-panel"><pre id="debugContent"></pre></div>
+
+    <!-- ─────────────── Assets ─────────────── -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.2/dist/axios.min.js"></script>
     <script src="/js/script.js"></script>
 </body>
 </html>

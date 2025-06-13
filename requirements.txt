@@ -1,3 +1,4 @@
+flask-cors
 requests
 google-genai
 flask
@@ -6,3 +7,4 @@ mwparserfromhell
 google-api-core
 openai
 autogen
+litellm      
