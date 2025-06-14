@@ -13,6 +13,7 @@ import logging
 from autogen.agentchat import AssistantAgent
 
 from application.dtos.agent_app_request import AgentAppRequest
+from application.dtos.agent_app_response import AgentAppResponse
 from application.interfaces.agent_interface import AgentInterface
 from infrastructure.autogen_adapters.dtos.function_execution_response_dto import (
     FunctionExecutionResponseDTO,
@@ -47,7 +48,7 @@ class AgentAutoGenWrapper(AssistantAgent):
         """Devuelve la lista de funciones que expone el agente real."""
         return self._agent_class.get_function_list()
 
-    def run(self, request: AgentAppRequest):
+    def run(self, request: AgentAppRequest)->AgentAppResponse:
         """Delegates the call to the underlying concrete agent."""
         return self._agent.run(request)
 
