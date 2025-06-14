@@ -75,38 +75,3 @@ class EmailAgent(AgentInterface):
             return EmailMapper.map_response(
                 EmailResponseDTO(status=StatusCode.ERROR, message=f"Error interno: {str(e)}")
             )
-        # === CONFIGURACIÓN SMTP - A FUEGO ===
-        # print("!!!!!!!!!!!!!!!!!!!!!!!!!ejecutando el email agent...!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        #  #     # Mapeamos la solicitud usando el mapper existente
-        # email_request = EmailMapper.map_request(request)
-        # print("[EmailAgent] Datos parseados:", email_request)
-
-
-        # SMTP_SERVER = "sandbox.smtp.mailtrap.io"
-        # SMTP_PORT = 2525
-        # SMTP_USERNAME = "0b8912a4ed76be"
-        # SMTP_PASSWORD = "226639342b6cff"
-        # SMTP_FROM_EMAIL = "AutoGenIA <autogenia@example.com>"
-        # SMTP_TO_EMAIL = "test@autogenia.mailtrap.io"
-
-        # print("📧 [Test] Preparando envío de correo...")
-
-        # # Crear mensaje
-        # msg = EmailMessage()
-        # msg.set_content("OTRA PRUEBA DESDE AUTOGEN \n\n¡Correo enviado correctamente!")
-        # msg["Subject"] = "Prueba de envío desde script directo"
-        # msg["From"] = SMTP_FROM_EMAIL
-        # msg["To"] = SMTP_TO_EMAIL
-
-        # try:
-        #     print(f"📨 [Test] Conectando a {SMTP_SERVER}:{SMTP_PORT}")
-        #     with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-        #         server.starttls()
-        #         print("🔐 [Test] Iniciando sesión SMTP...")
-        #         server.login(SMTP_USERNAME, SMTP_PASSWORD)
-        #         print("📤 [Test] Enviando correo...")
-        #         server.send_message(msg)
-        #     print("✅ [Test] Correo enviado con éxito.")
-
-        # except Exception as e:
-        #     print(f"❌ [Test] Error al enviar el correo: {str(e)}")
