@@ -10,6 +10,7 @@ from openai import NotFoundError, OpenAIError
 
 # Configuración del logging
 logging.basicConfig(level=logging.ERROR, format="%(message)s")
+logging.getLogger("autogen.oai.client").setLevel(logging.CRITICAL)
 
 # Importaciones locales
 from application.use_cases.autogen_runtime import run_autogen_chat
