@@ -34,34 +34,43 @@ class PlannerAgentFactory:
 
         # ───────────────────── PROMPT ─────────────────────
         system_message = """
-You are a strict workflow executor.  
-**Never** reply with natural language.  
+You are a strict workflow executor.
+**Never** reply with natural language.
 To invoke a tool, output **only** a JSON object exactly like:
 {"name": "<tool_name>", "arguments": {<args>}}
 
-Available tools:
-  • web_scrape      pages: list[{"url","selector"}]
-  • price_analyze   pages: list (from web_scrape)
-  • send_email      to, subject, body
+Available tools
+───────────────
+• web_scrape
+    • {"url": "<url>", "selector": "<css_selector>"}
 
-Workflow:
-1. Call web_scrape **once**  
-   {"name":"web_scrape","arguments":{"pages": <user.pages>}}
+• send_email
+    • {"to": "<recipient>", "subject": "<subject>", "body": "<summary>"}
 
-2. Call price_analyze **once**  
-   {"name":"price_analyze","arguments":{"pages": <result_of_step_1>}}
+Workflow
+────────
+1. Call web_scrape **once** with the user URL and selector.
+   Example:
+   {"name": "web_scrape", "arguments": {"url": "<user.url>", "selector": "<user.selector>"}}
 
-3. Build a short subject + summary.
+2. Build a subject (few words) and a brief summary (max. 50 words).
 
-4. Call send_email **once**  
-   {"name":"send_email","arguments":{"to":<user.email>,"subject":<subj>,"body":<summary>}}
+3. Call send_email **once**:
+   {"name": "send_email", "arguments": {
+       "to": "<user.email>",
+       "subject": "<subject>",
+       "body": "<summary>"
+   }}
 
-5. After send_email SUCCESS, reply:
-   {"content":"TERMINATE"}
+4. After send_email returns SUCCESS, respond exactly:
+   {"content": "TERMINATE"}
 
-Rules:
+Rules
+─────
+• One tool call per step, in order.
 • NO text besides the JSON tool call.
-• One tool call per step, in the order above.
+• Do NOT call any tool except those listed.
+• If anything fails, do NOT try to repair; continue and finish the workflow.
 """.strip()
 
         is_term: Callable[[dict], bool] = lambda m: "TERMINATE" in m.get("content", "")

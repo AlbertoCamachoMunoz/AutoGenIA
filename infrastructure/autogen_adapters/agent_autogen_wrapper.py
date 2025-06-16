@@ -25,7 +25,6 @@ from infrastructure.autogen_adapters.mappers.function_execution_mapper import (
 
 logger = logging.getLogger(__name__)
 
-
 class AgentAutoGenWrapper(AssistantAgent):
     def __init__(self, name: str, agent_class: type, agent: AgentInterface):
         super().__init__(
@@ -48,14 +47,15 @@ class AgentAutoGenWrapper(AssistantAgent):
         """Devuelve la lista de funciones que expone el agente real."""
         return self._agent_class.get_function_list()
 
-    def run(self, request: AgentAppRequest)->AgentAppResponse:
+    def run(self, request: AgentAppRequest) -> AgentAppResponse:
         """Delegates the call to the underlying concrete agent."""
         return self._agent.run(request)
 
     def execute_function(self, function_call, **kwargs):
         """
         Recibe la llamada propuesta por el planner, la transforma en
-        AgentAppRequest y devuelve la respuesta adaptada a AutoGen.
+        AgentAppRequest y devuelve la respuesta adaptada a AutoGen,
+        INCLUYENDO un mensaje válido para el chat del flujo.
         """
         try:
             logger.debug("[%s] execute_function → %s", self.name, function_call)
@@ -68,7 +68,12 @@ class AgentAutoGenWrapper(AssistantAgent):
 
             arguments = function_call.get("arguments", {})
             if isinstance(arguments, str):
-                arguments = json.loads(arguments)
+                try:
+                    arguments = json.loads(arguments)
+                except Exception:
+                    # Si es dict serializado en str por el LLM, prueba eval seguro
+                    import ast
+                    arguments = ast.literal_eval(arguments)
 
             # ---------------------------------------------------------- #
             # 2) Construir el DTO genérico
@@ -83,20 +88,21 @@ class AgentAutoGenWrapper(AssistantAgent):
             logger.debug("[%s] app_response ← %s", self.name, app_response)
 
             # ---------------------------------------------------------- #
-            # 4) Adaptar la salida para AutoGen
+            # 4) Adaptar la salida para AutoGen (mensaje válido)
             # ---------------------------------------------------------- #
-            response_dto = FunctionExecutionMapper.map_response(
-                agent_name=self.name, app_response=app_response
-            )
-            logger.debug("[%s] response_dto → %s", self.name, response_dto)
-
-            return True, response_dto.__dict__
+            # ¡ESTO es lo que espera el GroupChat! El planner recibirá este mensaje
+            return True, {
+                "role": self.name,
+                "content": app_response.content or "",
+                "status": app_response.status.name,
+                "message": app_response.message
+            }
 
         except Exception as exc:
             logger.exception("[%s] Error en execute_function", self.name)
-            error_dto = FunctionExecutionResponseDTO(
-                name=self.name,
-                content=str(exc),
-                status=FunctionExecutionStatus.ERROR,
-            )
-            return True, error_dto.__dict__
+            return True, {
+                "role": self.name,
+                "content": f"ERROR: {str(exc)}",
+                "status": "ERROR",
+                "message": str(exc)
+            }

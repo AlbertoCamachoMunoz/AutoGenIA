@@ -42,7 +42,7 @@ class WebScraperAgent(AgentInterface):
     def get_function_list(cls) -> list:
         """
         Devuelve el schema JSON de la función expuesta a AutoGen.
-        Dos formatos aceptados mediante `oneOf`.
+        Solo acepta UNA URL; el selector es opcional.
         """
         return [
             {
@@ -50,31 +50,12 @@ class WebScraperAgent(AgentInterface):
                 "description": cls.get_function_description(),
                 "parameters": {
                     "type": "object",
-                    "oneOf": [
-                        {   # A · Una sola página
-                            "required": ["url"],
-                            "properties": {
-                                "url":      {"type": "string"},
-                                "selector": {"type": "string"},
-                            },
-                        },
-                        {   # B · Varias páginas
-                            "required": ["pages"],
-                            "properties": {
-                                "pages": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "required": ["url"],
-                                        "properties": {
-                                            "url":      {"type": "string"},
-                                            "selector": {"type": "string"},
-                                        },
-                                    },
-                                }
-                            },
-                        },
-                    ],
+                    "properties": {
+                        "url":      {"type": "string"},
+                        "selector": {"type": "string", "default": ""},
+                    },
+                    "required": ["url"],
+                    "additionalProperties": False,
                 },
             }
         ]
