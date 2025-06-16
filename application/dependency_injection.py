@@ -73,7 +73,7 @@ class DependencyInjector:
             DependencyInjector._wrapper_cache = [
                 # AgentAutoGenWrapper("wikipedia", WikipediaAgent, WikipediaAgent()),
                 AgentAutoGenWrapper("scraper", WebScraperAgent, WebScraperAgent()),
-                AgentAutoGenWrapper("price_analyze", PriceAnalyzerAgent, PriceAnalyzerAgent()),
+                # AgentAutoGenWrapper("price_analyze", PriceAnalyzerAgent, PriceAnalyzerAgent()),
                 AgentAutoGenWrapper("email",     EmailAgent,     EmailAgent()),
             ]
         return DependencyInjector._wrapper_cache
