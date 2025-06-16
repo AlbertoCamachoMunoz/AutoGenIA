@@ -18,8 +18,6 @@ from infrastructure.agents.webscraper.mappers.webscraper_mapper import (
     WebScraperMapper,
 )
 
-
-# Cabeceras para imitar un navegador moderno
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -31,20 +29,21 @@ HEADERS = {
 
 
 class WebScraperAgent(AgentInterface):
-    # ────────────────────────── Metadatos ──────────────────────────
+    # ──────────── Metadatos ────────────
     @classmethod
     def get_function_name(cls) -> str:
         return "web_scrape"
 
     @classmethod
     def get_function_description(cls) -> str:
-        return (
-            "Obtiene el texto visible de una o varias páginas web, "
-            "utilizando selectores CSS opcionales."
-        )
+        return "Scrapea texto visible de una o varias URL (CSS selector opcional)."
 
     @classmethod
     def get_function_list(cls) -> list:
+        """
+        Devuelve el schema JSON de la función expuesta a AutoGen.
+        Dos formatos aceptados mediante `oneOf`.
+        """
         return [
             {
                 "name": cls.get_function_name(),
@@ -52,14 +51,14 @@ class WebScraperAgent(AgentInterface):
                 "parameters": {
                     "type": "object",
                     "oneOf": [
-                        {  # A · Una página
+                        {   # A · Una sola página
                             "required": ["url"],
                             "properties": {
                                 "url":      {"type": "string"},
                                 "selector": {"type": "string"},
                             },
                         },
-                        {  # B · Lote
+                        {   # B · Varias páginas
                             "required": ["pages"],
                             "properties": {
                                 "pages": {
@@ -80,32 +79,24 @@ class WebScraperAgent(AgentInterface):
             }
         ]
 
-    # ────────────────────────── Ejecución ──────────────────────────
+    # ──────────── Ejecución ────────────
     def run(self, request: AgentAppRequest) -> AgentAppResponse:
         try:
             req: WebScraperRequestDTO = WebScraperMapper.map_request(request)
-            resultados: list[dict] = []
+            bloques: list[dict] = []
 
-            for entry in req.entries:
-                print(f"[Scraper] ⇒ {entry.url} (selector: {entry.selector or '-'})")
+            for e in req.entries:
                 try:
-                    texto = self._scrape(entry.url, entry.selector)
-                    resultados.append({
-                        "url": entry.url,
-                        "status": "SUCCESS",
-                        "content": texto.strip()
-                    })
+                    print(f"[Scraper] ⇒ {e.url} (selector: {e.selector or '-'})")
+                    txt = self._scrape(e.url, e.selector)
+                    bloques.append({"url": e.url, "status": "SUCCESS", "content": txt.strip()})
                 except Exception as page_exc:
-                    resultados.append({
-                        "url": entry.url,
-                        "status": "ERROR",
-                        "content": str(page_exc)
-                    })
+                    bloques.append({"url": e.url, "status": "ERROR", "content": str(page_exc)})
 
             dto = WebScraperResponseDTO(
-                content=json.dumps(resultados, ensure_ascii=False),
+                content=json.dumps(bloques, ensure_ascii=False),
                 status=StatusCode.SUCCESS,
-                message="OK"
+                message="OK",
             )
             return WebScraperMapper.map_response(dto)
 
@@ -113,21 +104,20 @@ class WebScraperAgent(AgentInterface):
             dto = WebScraperResponseDTO(
                 content="",
                 status=StatusCode.ERROR,
-                message=str(exc)
+                message=str(exc),
             )
             return WebScraperMapper.map_response(dto)
 
-    # ───────────────────── Helper privado ──────────────────────
+    # ──────────── Helper ────────────
     def _scrape(self, url: str, selector: str = "") -> str:
-        resp = requests.get(url, headers=HEADERS, timeout=15)
-        resp.raise_for_status()
-
-        soup = BeautifulSoup(resp.text, "html.parser")
+        r = requests.get(url, headers=HEADERS, timeout=15)
+        r.raise_for_status()
+        soup = BeautifulSoup(r.text, "html.parser")
 
         if selector:
-            nodos = soup.select(selector)
-            if not nodos:
+            nodes = soup.select(selector)
+            if not nodes:
                 raise ValueError(f"Selector '{selector}' vacío en {url}")
-            return "\n".join(n.get_text(" ", strip=True) for n in nodos)
+            return "\n".join(n.get_text(" ", strip=True) for n in nodes)
 
         return soup.get_text(" ", strip=True)

@@ -27,7 +27,8 @@ def main() -> None:
     opcion = input("Opción (1/2): ").strip()
 
     if opcion == "1":
-        llm_type = LLMProvider.GEMINI
+        # llm_type = LLMProvider.GEMINI   para futuras versiones
+        llm_type = LLMProvider.LLM_STUDIO
     elif opcion == "2":
         llm_type = LLMProvider.LLM_STUDIO
     else:
@@ -64,12 +65,12 @@ def main() -> None:
 
         except ConnectionError:
             print(
-                "\n🚫 No se pudo conectar con LM Studio.\n"
+                "\n🚫 No se pudo conectar.\n"
                 "Revisa la URL y si el servidor está encendido.\n"
             )
         except NotFoundError:
             print(
-                "\n⚠️ El modelo no está cargado en LM Studio.\n"
+                "\n⚠️ El modelo no está cargado.\n"
                 "Carga un modelo o revisa la configuración.\n"
             )
         except OpenAIError as e:

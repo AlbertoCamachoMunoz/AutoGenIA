@@ -12,28 +12,29 @@ from application.enums.status_code import StatusCode
 
 
 class WebScraperMapper:
-    # ------------------------- REQUEST --------------------------
+    # --------------------- REQUEST ---------------------
     @staticmethod
     def map_request(app_request: AgentAppRequest) -> WebScraperRequestDTO:
         data = app_request.content
 
-        # ---- A · pages al nivel raíz ----------------------------------
+        # A) raíz -> pages[]
         if isinstance(data, dict) and "pages" in data:
             return WebScraperRequestDTO(
                 entries=[WebScraperEntryDTO(**e) for e in data["pages"]]
             )
 
-        # ---- B · Una sola URL en dict --------------------------------
+        # B) raíz -> url
         if isinstance(data, dict) and "url" in data:
             return WebScraperRequestDTO(
-                entries=[WebScraperEntryDTO(url=data["url"], selector=data.get("selector", ""))]
+                entries=[WebScraperEntryDTO(url=data["url"],
+                                            selector=data.get("selector", ""))]
             )
 
-        # ---- C · String directo --------------------------------------
+        # C) string
         if isinstance(data, str):
             return WebScraperRequestDTO(entries=[WebScraperEntryDTO(url=data)])
 
-        # ---- D · Formato AutoGen → kwargs -----------------------------
+        # D) AutoGen kwargs
         if isinstance(data, dict) and "kwargs" in data:
             inner = data["kwargs"]
             if isinstance(inner, dict) and "pages" in inner:
@@ -42,22 +43,31 @@ class WebScraperMapper:
                 )
             if isinstance(inner, dict) and "url" in inner:
                 return WebScraperRequestDTO(
-                    entries=[WebScraperEntryDTO(url=inner["url"], selector=inner.get("selector", ""))]
+                    entries=[WebScraperEntryDTO(url=inner["url"],
+                                                selector=inner.get("selector", ""))]
                 )
             if isinstance(inner, str):
                 return WebScraperRequestDTO(entries=[WebScraperEntryDTO(url=inner)])
 
         raise ValueError("Se necesita 'pages' o 'url' en la llamada a web_scrape.")
 
-    # ------------------------- RESPONSE --------------------------
+    # --------------------- RESPONSE --------------------
     @staticmethod
     def map_response(dto: WebScraperResponseDTO) -> AgentAppResponse:
+        """
+        – Éxito  -> dto.content **ya es** la lista JSON completa.
+        – Error  -> devuelve detalle en content.
+        """
         if dto.status == StatusCode.SUCCESS:
-            json_str = json.dumps({"url": dto.message, "content": dto.content})
-            return AgentAppResponse(content=json_str, status=dto.status, message=dto.message)
+            # Entregamos la lista JSON tal cual, sin envolverla otra vez.
+            return AgentAppResponse(
+                content=dto.content,
+                status=StatusCode.SUCCESS,
+                message="OK",
+            )
 
         return AgentAppResponse(
             content=f"ERROR: {dto.message}",
-            status=dto.status,
+            status=StatusCode.ERROR,
             message=dto.message,
         )
