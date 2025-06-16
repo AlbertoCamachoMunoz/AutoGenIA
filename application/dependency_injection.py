@@ -12,6 +12,8 @@ from application.enums.llm_provider import LLMProvider
 from application.interfaces.llm_interface import LLMInterface
 from application.factories.llm_provider_factory import LLMProviderFactory
 
+from infrastructure.agents.price_analyzer.price_analyzer_agent import PriceAnalyzerAgent
+from infrastructure.agents.webscraper.webscraper_agent import WebScraperAgent
 from infrastructure.llms_providers.llm_studio.llm_studio import LLMStudio
 from infrastructure.llms_providers.gemini.gemini import Gemini
 
@@ -69,7 +71,9 @@ class DependencyInjector:
     def _build_wrappers() -> List[AgentAutoGenWrapper]:
         if DependencyInjector._wrapper_cache is None:
             DependencyInjector._wrapper_cache = [
-                AgentAutoGenWrapper("wikipedia", WikipediaAgent, WikipediaAgent()),
+                # AgentAutoGenWrapper("wikipedia", WikipediaAgent, WikipediaAgent()),
+                AgentAutoGenWrapper("scraper", WebScraperAgent, WebScraperAgent()),
+                AgentAutoGenWrapper("price_analyze", PriceAnalyzerAgent, PriceAnalyzerAgent()),
                 AgentAutoGenWrapper("email",     EmailAgent,     EmailAgent()),
             ]
         return DependencyInjector._wrapper_cache
@@ -123,7 +127,7 @@ class DependencyInjector:
         gchat = GroupChat(
             agents  = [planner] + wrappers,
             messages=[],
-            max_round=10,
+            max_round=20,
             speaker_selection_method="round_robin",
             allow_repeat_speaker=False,
             select_speaker_auto_llm_config=llm_cfg,

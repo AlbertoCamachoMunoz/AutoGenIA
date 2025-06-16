@@ -7,4 +7,5 @@ mwparserfromhell
 google-api-core
 openai
 autogen
-litellm      
+litellm    
+beautifulsoup4  
