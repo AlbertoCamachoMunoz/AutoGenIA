@@ -2,6 +2,7 @@
 from typing import Any, Callable
 from autogen.agentchat import AssistantAgent
 from application.interfaces.llm_interface import LLMInterface
+from config.settings import SMTP_FROM_EMAIL
 from infrastructure.autogen_agents.mappers.planner_mapper import PlannerMapper
 from application.dtos.planner_app_response import PlannerAppResponse
 
@@ -33,37 +34,45 @@ class PlannerAgentFactory:
         }
 
         # ───────────────────── PROMPT ─────────────────────
-        system_message = """
+        system_message = f"""
 You are a strict workflow executor.
 **Never** reply with natural language.
 To invoke a tool, output **only** a JSON object exactly like:
-{"name": "<tool_name>", "arguments": {<args>}}
+{{"name": "<tool_name>", "arguments": {{<args>}}}}
 
 Available tools
 ───────────────
 • web_scrape
-    • {"url": "<url>", "selector": "<css_selector>"}
+    • {{"url": "<url>", "selector": "<css_selector>"}}
+      Returns a list of products with: description, price, sku.
 
 • send_email
-    • {"to": "<recipient>", "subject": "<subject>", "body": "<summary>"}
+    • {{"to": "{SMTP_FROM_EMAIL}", "subject": "<subject>", "body": "<summary>"}}
 
 Workflow
 ────────
-1. Call web_scrape **once** with the user URL and selector.
+1. Call web_scrape **once** for each shop entry in the user input, passing its url and selector(s).
    Example:
-   {"name": "web_scrape", "arguments": {"url": "<user.url>", "selector": "<user.selector>"}}
+   {{"name": "web_scrape", "arguments": {{"url": "<shop.url>", "selector": "<shop.selector>"}}}}
 
-2. Build a subject (few words) and a brief summary (max. 50 words).
+   The web_scrape function returns a list of products, each with fields: description, price, sku.
 
-3. Call send_email **once**:
-   {"name": "send_email", "arguments": {
-       "to": "<user.email>",
+2. Build a subject (few words) and a brief summary (max. 50 words) **comparing prices**.
+
+3. Call send_email **once** to:
+   - to: {SMTP_FROM_EMAIL}
+   - subject: your generated subject
+   - body: your generated summary
+
+   Example:
+   {{"name": "send_email", "arguments": {{
+       "to": "{SMTP_FROM_EMAIL}",
        "subject": "<subject>",
        "body": "<summary>"
-   }}
+   }}}}
 
 4. After send_email returns SUCCESS, respond exactly:
-   {"content": "TERMINATE"}
+   {{"content": "TERMINATE"}}
 
 Rules
 ─────

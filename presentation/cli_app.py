@@ -53,7 +53,7 @@ def main() -> None:
             manager.groupchat.messages = []
 
             # Ejecutar conversación
-            run_autogen_chat(user, manager, prompt)
+            chat = run_autogen_chat(user, manager, prompt)
 
             # Mostrar respuesta del planner siempre como DTO coherente
             planner_dto = last_planner_response(manager.groupchat.messages)
@@ -65,18 +65,18 @@ def main() -> None:
 
         except ConnectionError:
             print(
-                "\n🚫 No se pudo conectar.\n"
+                "\n🚫 \t  No se pudo conectar.\n"
                 "Revisa la URL y si el servidor está encendido.\n"
             )
         except NotFoundError:
             print(
-                "\n⚠️ El modelo no está cargado.\n"
+                "\n⚠️ \t El modelo no está cargado.\n"
                 "Carga un modelo o revisa la configuración.\n"
             )
         except OpenAIError as e:
-            print(f"\n⚠️ Error OpenAI-compatible: {e}\n")
+            print(f"\n⚠️ \t  Error OpenAI-compatible: {e}\n")
         except Exception as e:
-            print(f"\n❌ Error inesperado: {e}\n")
+            print(f"\n❌ \t Error inesperado: {e}\n")
 
 
 if __name__ == "__main__":
@@ -85,3 +85,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\nPrograma interrumpido por el usuario.")
         sys.exit(0)
+
+# { "shops": [{"url": "https://www.thefansofmagicstore.com/", "selector_price": ".woocommerce-Price-amount .amount", "description": "h3.heading-title.product-name a"","selector_sku": {"tag": "a", "attribute": "data-product_sku"}}]}

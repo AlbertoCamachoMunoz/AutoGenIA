@@ -1,10 +1,15 @@
 # infrastructure/agents/webscraper/dtos/webscraper_response_dto.py
-
 from dataclasses import dataclass
-from application.enums.status_code import StatusCode
+from typing import List, Dict
+
+@dataclass
+class ProductResult:
+    description: str
+    price: str
+    sku: str
 
 @dataclass
 class WebScraperResponseDTO:
-    content: str
-    status: StatusCode
-    message: str = "OK"
+    products: List[ProductResult]
+    status: str
+    message: str

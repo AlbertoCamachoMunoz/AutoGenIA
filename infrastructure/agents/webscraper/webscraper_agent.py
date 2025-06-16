@@ -1,22 +1,16 @@
 # infrastructure/agents/webscraper/webscraper_agent.py
-import json
+
 import requests
 from bs4 import BeautifulSoup
 
-from application.interfaces.agent_interface import AgentInterface
 from application.enums.status_code import StatusCode
+from application.interfaces.agent_interface import AgentInterface
 from application.dtos.agent_app_request import AgentAppRequest
 from application.dtos.agent_app_response import AgentAppResponse
 
-from infrastructure.agents.webscraper.dtos.webscraper_request_dto import (
-    WebScraperRequestDTO,
-)
-from infrastructure.agents.webscraper.dtos.webscraper_response_dto import (
-    WebScraperResponseDTO,
-)
-from infrastructure.agents.webscraper.mappers.webscraper_mapper import (
-    WebScraperMapper,
-)
+from infrastructure.agents.webscraper.dtos.webscraper_request_dto import WebScraperRequestDTO
+from infrastructure.agents.webscraper.dtos.webscraper_response_dto import WebScraperResponseDTO, ProductResult
+from infrastructure.agents.webscraper.mappers.webscraper_mapper import WebScraperMapper
 
 HEADERS = {
     "User-Agent": (
@@ -27,78 +21,101 @@ HEADERS = {
     "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
 }
 
-
 class WebScraperAgent(AgentInterface):
-    # ──────────── Metadatos ────────────
-    @classmethod
-    def get_function_name(cls) -> str:
+    @staticmethod
+    def get_function_name() -> str:
         return "web_scrape"
 
-    @classmethod
-    def get_function_description(cls) -> str:
-        return "Scrapea texto visible de una o varias URL (CSS selector opcional)."
+    @staticmethod
+    def get_function_description() -> str:
+        return (
+            "Scrapea múltiples productos de una o varias URLs (precio, descripción y SKU por producto, selectores configurables)."
+        )
 
-    @classmethod
-    def get_function_list(cls) -> list:
-        """
-        Devuelve el schema JSON de la función expuesta a AutoGen.
-        Solo acepta UNA URL; el selector es opcional.
-        """
+    @staticmethod
+    def get_function_list() -> list:
         return [
             {
-                "name": cls.get_function_name(),
-                "description": cls.get_function_description(),
+                "name": WebScraperAgent.get_function_name(),
+                "description": WebScraperAgent.get_function_description(),
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "url":      {"type": "string"},
-                        "selector": {"type": "string", "default": ""},
+                        "shops": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "url": {"type": "string"},
+                                    "selector_price": {"type": "string"},
+                                    "selector_description": {"type": "string"},
+                                    "selector_sku": {
+                                        "type": "object",
+                                        "properties": {
+                                            "tag": {"type": "string"},
+                                            "attribute": {"type": "string"}
+                                        },
+                                        "required": ["tag", "attribute"]
+                                    }
+                                },
+                                "required": ["url", "selector_price", "selector_description", "selector_sku"]
+                            }
+                        }
                     },
-                    "required": ["url"],
+                    "required": ["shops"],
                     "additionalProperties": False,
                 },
             }
         ]
 
-    # ──────────── Ejecución ────────────
     def run(self, request: AgentAppRequest) -> AgentAppResponse:
+        print("WebScraperAgent - request.content:", request.content)
         try:
             req: WebScraperRequestDTO = WebScraperMapper.map_request(request)
-            bloques: list[dict] = []
+            print("WebScraperAgent - req.entries:", req.entries)
+            products = []
 
-            for e in req.entries:
-                try:
-                    print(f"[Scraper] ⇒ {e.url} (selector: {e.selector or '-'})")
-                    txt = self._scrape(e.url, e.selector)
-                    bloques.append({"url": e.url, "status": "SUCCESS", "content": txt.strip()})
-                except Exception as page_exc:
-                    bloques.append({"url": e.url, "status": "ERROR", "content": str(page_exc)})
+            for entry in req.entries:
+                print("Procesando entry:", entry)
+                r = requests.get(entry.url, headers=HEADERS, timeout=15)
+                r.raise_for_status()
+                soup = BeautifulSoup(r.text, "html.parser")
+                print("HTML descargado OK, buscando productos...")
+
+                for prod in soup.find_all(entry.selector_sku["tag"], attrs={entry.selector_sku["attribute"]: True}):
+                    sku = prod.get(entry.selector_sku["attribute"], "")
+
+                    # Subimos hasta el contenedor que tenga toda la info del producto
+                    meta_wrapper = prod.find_parent(class_="meta-wrapper")
+                    if not meta_wrapper:
+                        print(f"SKU: {sku} sin meta-wrapper, saltando")
+                        continue
+
+                    # Precio y descripción según los selectores relativos dentro de meta-wrapper
+                    price_elem = meta_wrapper.select_one(entry.selector_price)
+                    desc_elem = meta_wrapper.select_one(entry.selector_description)
+
+                    price = price_elem.get_text(strip=True) if price_elem else ""
+                    description = desc_elem.get_text(strip=True) if desc_elem else ""
+
+                    print(f"→ description: {description} | price: {price} | sku: {sku}")
+
+                    products.append(ProductResult(description=description, price=price, sku=sku))
+
+            print("Productos extraídos:", products)
 
             dto = WebScraperResponseDTO(
-                content=json.dumps(bloques, ensure_ascii=False),
+                products=products,
                 status=StatusCode.SUCCESS,
-                message="OK",
+                message="OK"
             )
             return WebScraperMapper.map_response(dto)
 
         except Exception as exc:
+            print("EXCEPCIÓN en WebScraperAgent:", exc)
             dto = WebScraperResponseDTO(
-                content="",
+                products=[],
                 status=StatusCode.ERROR,
-                message=str(exc),
+                message=str(exc)
             )
             return WebScraperMapper.map_response(dto)
-
-    # ──────────── Helper ────────────
-    def _scrape(self, url: str, selector: str = "") -> str:
-        r = requests.get(url, headers=HEADERS, timeout=15)
-        r.raise_for_status()
-        soup = BeautifulSoup(r.text, "html.parser")
-
-        if selector:
-            nodes = soup.select(selector)
-            if not nodes:
-                raise ValueError(f"Selector '{selector}' vacío en {url}")
-            return "\n".join(n.get_text(" ", strip=True) for n in nodes)
-
-        return soup.get_text(" ", strip=True)

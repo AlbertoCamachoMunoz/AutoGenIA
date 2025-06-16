@@ -1,13 +1,13 @@
-# infrastructure/agents/webscraper/dtos/webscraper_request_dto.py
-
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import List, Dict, Optional
 
 @dataclass
-class WebScraperEntryDTO:
+class ShopRequestEntry:
     url: str
-    selector: Optional[str] = ""
+    selector_price: str
+    selector_description: str
+    selector_sku: Dict[str, str]  # Ejemplo: {"tag": "a", "attribute": "data-product_sku"}
 
 @dataclass
 class WebScraperRequestDTO:
-    entries: List[WebScraperEntryDTO]
+    entries: List[ShopRequestEntry]
