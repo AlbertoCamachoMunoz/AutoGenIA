@@ -61,9 +61,7 @@ class EmailAgent(AgentInterface):
             print(f"   Message: {email_response.message}")
 
             # Devolvemos la respuesta ya mapeada
-            response = EmailMapper.map_response(email_response)
-            response.content += " TERMINATE"
-            return response
+            return EmailMapper.map_response(email_response)
 
         except ValueError as ve:
             print(f"[EmailAgent] Error de validación: {ve}")
