@@ -73,7 +73,7 @@ class DependencyInjector:
 
             DependencyInjector._wrapper_cache = [
                 AgentAutoGenWrapper("scraper", WebScraperAgent, WebScraperAgent(provider)),
-                AgentAutoGenWrapper("email",   EmailAgent,       EmailAgent(provider)),
+                # AgentAutoGenWrapper("email",   EmailAgent,       EmailAgent(provider)),
                 # Aquí se añadirá después:
                 # AgentAutoGenWrapper("translator", TranslatorAgent, TranslatorAgent(provider)),
             ]

@@ -7,13 +7,8 @@ from autogen.agentchat import AssistantAgent
 from application.dtos.agent_app_request import AgentAppRequest
 from application.dtos.agent_app_response import AgentAppResponse
 from application.interfaces.agent_interface import AgentInterface
-from infrastructure.autogen_adapters.dtos.function_execution_response_dto import (
-    FunctionExecutionResponseDTO,
-    FunctionExecutionStatus,
-)
-from infrastructure.autogen_adapters.mappers.function_execution_mapper import (
-    FunctionExecutionMapper,
-)
+from application.enums.status_code import StatusCode
+from infrastructure.autogen_adapters.mappers.function_execution_mapper import FunctionExecutionMapper
 
 logger = logging.getLogger(__name__)
 
@@ -29,19 +24,13 @@ class AgentAutoGenWrapper(AssistantAgent):
         self._agent_class = agent_class
         self._agent = agent
 
-    # --------------------------------------------------------------------- #
-    # API pública
-    # --------------------------------------------------------------------- #
-
     def get_agent(self) -> AgentInterface:
         return self._agent
 
     def get_function_list(self) -> list:
-        """Devuelve la lista de funciones que expone el agente real."""
         return self._agent_class.get_function_list()
 
     def run(self, request: AgentAppRequest) -> AgentAppResponse:
-        """Delegates the call to the underlying concrete agent."""
         return self._agent.run(request)
 
     def execute_function(self, function_call, **kwargs):
@@ -70,18 +59,17 @@ class AgentAutoGenWrapper(AssistantAgent):
             app_response = self._agent.run(app_request)
             logger.debug("[%s] app_response ← %s", self.name, app_response)
 
-            return True, {
-                "role": self.name,
-                "content": app_response.content or "",
-                "status": app_response.status.name,
-                "message": app_response.message
-            }
+            # ÚNICO CAMBIO: Usar solo el mapper, no crear el dict manualmente
+            dto = FunctionExecutionMapper.map_response(self.name, app_response)
+            return True, dto.__dict__
 
         except Exception as exc:
             logger.exception("[%s] Error en execute_function", self.name)
-            return True, {
-                "role": self.name,
-                "content": f"ERROR: {str(exc)}",
-                "status": "ERROR",
-                "message": str(exc)
-            }
+ 
+            app_response = AgentAppResponse(
+                content=f"ERROR: {str(exc)}",
+                status=StatusCode.ERROR,
+                message=str(exc),
+            )
+            dto = FunctionExecutionMapper.map_response(self.name, app_response)
+            return True, dto.__dict__
