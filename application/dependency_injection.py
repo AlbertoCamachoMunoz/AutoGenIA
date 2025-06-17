@@ -20,6 +20,7 @@ from infrastructure.autogen_agents.planner_agent import PlannerAgentFactory
 from infrastructure.autogen_adapters.agent_autogen_wrapper import AgentAutoGenWrapper
 from infrastructure.agents.wikipedia.wikipedia_agent import WikipediaAgent
 from infrastructure.agents.email.email_agent import EmailAgent
+from infrastructure.agents.translator.translator_agent import TranslatorAgent
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +77,7 @@ class DependencyInjector:
                 # AgentAutoGenWrapper("email",   EmailAgent,       EmailAgent(provider)),
                 # Aquí se añadirá después:
                 # AgentAutoGenWrapper("translator", TranslatorAgent, TranslatorAgent(provider)),
+                AgentAutoGenWrapper("translator", TranslatorAgent, TranslatorAgent(provider))
             ]
         return DependencyInjector._wrapper_cache
 
