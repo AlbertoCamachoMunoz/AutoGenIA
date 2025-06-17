@@ -9,22 +9,23 @@ import json
 class WebScraperMapper:
     @staticmethod
     def map_request(request: AgentAppRequest) -> WebScraperRequestDTO:
-        content = request.content
-        # Si viene como lista bajo 'shops'
-        if 'shops' in content:
-            shops = content['shops']
-        # Si viene plano, conviértelo en lista de un solo elemento
-        elif 'url' in content and 'selector_price' in content:
-            shops = [content]
-        else:
-            shops = []
+        data = request.content
         entries = []
-        for shop in shops:
+        # Admite ambos formatos: array y campos raíz
+        if "shops" in data:
+            for shop in data["shops"]:
+                entries.append(ShopRequestEntry(
+                    url=shop["url"],
+                    selector_price=shop["selector_price"],
+                    selector_description=shop.get("selector_description", ""),
+                    selector_sku=shop.get("selector_sku", {})
+                ))
+        else:
             entries.append(ShopRequestEntry(
-                url=shop.get("url", ""),
-                selector_price=shop.get("selector_price", ""),
-                selector_description=shop.get("description", ""),
-                selector_sku=shop.get("selector_sku", {}),
+                url=data.get("url", ""),
+                selector_price=data.get("selector_price", ""),
+                selector_description=data.get("selector_description", ""),
+                selector_sku=data.get("selector_sku", {})
             ))
         return WebScraperRequestDTO(entries=entries)
 
