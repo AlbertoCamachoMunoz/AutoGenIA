@@ -1,5 +1,6 @@
 # infrastructure/agents/webscraper/webscraper_agent.py
 
+from typing import Optional, Dict, Any
 import requests
 from bs4 import BeautifulSoup
 
@@ -7,6 +8,7 @@ from application.enums.status_code import StatusCode
 from application.interfaces.agent_interface import AgentInterface
 from application.dtos.agent_app_request import AgentAppRequest
 from application.dtos.agent_app_response import AgentAppResponse
+from application.interfaces.llm_interface import LLMInterface
 
 from infrastructure.agents.webscraper.dtos.webscraper_request_dto import WebScraperRequestDTO
 from infrastructure.agents.webscraper.dtos.webscraper_response_dto import WebScraperResponseDTO, ProductResult
@@ -22,6 +24,9 @@ HEADERS = {
 }
 
 class WebScraperAgent(AgentInterface):
+    def __init__(self, provider: Optional[LLMInterface] = None):
+        self.provider = provider
+
     @staticmethod
     def get_function_name() -> str:
         return "web_scrape"
@@ -68,6 +73,9 @@ class WebScraperAgent(AgentInterface):
             }
         ]
 
+    def get_llm_config(self) -> None:
+        return None
+
     def run(self, request: AgentAppRequest) -> AgentAppResponse:
         print("WebScraperAgent - request.content:", request.content)
         try:
@@ -85,13 +93,11 @@ class WebScraperAgent(AgentInterface):
                 for prod in soup.find_all(entry.selector_sku["tag"], attrs={entry.selector_sku["attribute"]: True}):
                     sku = prod.get(entry.selector_sku["attribute"], "")
 
-                    # Subimos hasta el contenedor que tenga toda la info del producto
                     meta_wrapper = prod.find_parent(class_="meta-wrapper")
                     if not meta_wrapper:
                         print(f"SKU: {sku} sin meta-wrapper, saltando")
                         continue
 
-                    # Precio y descripción según los selectores relativos dentro de meta-wrapper
                     price_elem = meta_wrapper.select_one(entry.selector_price)
                     desc_elem = meta_wrapper.select_one(entry.selector_description)
 

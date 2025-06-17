@@ -1,12 +1,4 @@
 # infrastructure/autogen_adapters/agent_autogen_wrapper.py
-"""
-Wrapper genérico que permite a AutoGen invocar cualquiera de los agentes de
-infraestructura (Wikipedia, Email, etc.) mediante el mecanismo *function calling*.
-
-✔  Usa el contrato unificado: AgentAppRequest(content=dict)
-✔  Elimina la conversión específica por nombre; el agente recibe siempre un
-   diccionario con los argumentos originales de la llamada.
-"""
 
 import json
 import logging
@@ -25,11 +17,12 @@ from infrastructure.autogen_adapters.mappers.function_execution_mapper import (
 
 logger = logging.getLogger(__name__)
 
+
 class AgentAutoGenWrapper(AssistantAgent):
     def __init__(self, name: str, agent_class: type, agent: AgentInterface):
         super().__init__(
             name=name,
-            llm_config=False,
+            llm_config=agent.get_llm_config(),
             system_message=f"Wrapper del agente «{name}».",
             human_input_mode="NEVER",
         )
@@ -60,9 +53,6 @@ class AgentAutoGenWrapper(AssistantAgent):
         try:
             logger.debug("[%s] execute_function → %s", self.name, function_call)
 
-            # ---------------------------------------------------------- #
-            # 1) Normalizar la llamada
-            # ---------------------------------------------------------- #
             if isinstance(function_call, str):
                 function_call = json.loads(function_call)
 
@@ -71,26 +61,15 @@ class AgentAutoGenWrapper(AssistantAgent):
                 try:
                     arguments = json.loads(arguments)
                 except Exception:
-                    # Si es dict serializado en str por el LLM, prueba eval seguro
                     import ast
                     arguments = ast.literal_eval(arguments)
 
-            # ---------------------------------------------------------- #
-            # 2) Construir el DTO genérico
-            # ---------------------------------------------------------- #
             app_request = AgentAppRequest(content=arguments)
             logger.debug("[%s] app_request → %s", self.name, app_request)
 
-            # ---------------------------------------------------------- #
-            # 3) Ejecutar agente real
-            # ---------------------------------------------------------- #
             app_response = self._agent.run(app_request)
             logger.debug("[%s] app_response ← %s", self.name, app_response)
 
-            # ---------------------------------------------------------- #
-            # 4) Adaptar la salida para AutoGen (mensaje válido)
-            # ---------------------------------------------------------- #
-            # ¡ESTO es lo que espera el GroupChat! El planner recibirá este mensaje
             return True, {
                 "role": self.name,
                 "content": app_response.content or "",

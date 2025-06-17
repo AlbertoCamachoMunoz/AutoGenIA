@@ -69,10 +69,13 @@ class DependencyInjector:
     @staticmethod
     def _build_wrappers() -> List[AgentAutoGenWrapper]:
         if DependencyInjector._wrapper_cache is None:
+            provider = None  # ← Por ahora, no pasamos ninguno
+
             DependencyInjector._wrapper_cache = [
-                # AgentAutoGenWrapper("wikipedia", WikipediaAgent, WikipediaAgent()),
-                AgentAutoGenWrapper("scraper", WebScraperAgent, WebScraperAgent()),
-                AgentAutoGenWrapper("email",     EmailAgent,     EmailAgent()),
+                AgentAutoGenWrapper("scraper", WebScraperAgent, WebScraperAgent(provider)),
+                AgentAutoGenWrapper("email",   EmailAgent,       EmailAgent(provider)),
+                # Aquí se añadirá después:
+                # AgentAutoGenWrapper("translator", TranslatorAgent, TranslatorAgent(provider)),
             ]
         return DependencyInjector._wrapper_cache
 
