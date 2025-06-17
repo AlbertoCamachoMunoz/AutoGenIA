@@ -12,7 +12,6 @@ from application.enums.llm_provider import LLMProvider
 from application.interfaces.llm_interface import LLMInterface
 from application.factories.llm_provider_factory import LLMProviderFactory
 
-from infrastructure.agents.price_analyzer.price_analyzer_agent import PriceAnalyzerAgent
 from infrastructure.agents.webscraper.webscraper_agent import WebScraperAgent
 from infrastructure.llms_providers.llm_studio.llm_studio import LLMStudio
 from infrastructure.llms_providers.gemini.gemini import Gemini
