@@ -28,9 +28,9 @@ class AgentInterface(ABC):
     def get_llm_config(self) -> Optional[Dict[str, Any]]:
         pass
 
-    # @abstractmethod
-    # def get_llm_prompt(self) -> Optional[str]:
-    #     pass
+    @abstractmethod
+    def get_llm_prompt(self) -> Optional[str]:
+        pass
     
     @abstractmethod
     def run(self, request: AgentAppRequest) -> AgentAppResponse:

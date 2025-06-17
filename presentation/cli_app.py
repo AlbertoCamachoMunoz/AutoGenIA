@@ -87,3 +87,5 @@ if __name__ == "__main__":
         sys.exit(0)
 
 # { "shops": [{"url": "https://www.thefansofmagicstore.com/", "selector_price": "ins .woocommerce-Price-amount bdi", "selector_description": "h3.heading-title.product-name a","selector_sku": {"tag": "a", "attribute": "data-product_sku"}}]}
+
+# { "shops": [{"url": "https://www.thefansofmagicstore.com/", "selector_price": "ins .woocommerce-Price-amount bdi", "selector_description": "h3.heading-title.product-name a","selector_sku": {"tag": "a", "attribute": "data-product_sku"}}],"langs":[{"lang":"english"}]} 

@@ -75,6 +75,9 @@ class WebScraperAgent(AgentInterface):
 
     def get_llm_config(self) -> None:
         return None
+    
+    def get_llm_prompt(self) -> None:
+        return None
 
     def run(self, request: AgentAppRequest) -> AgentAppResponse:
         print("WebScraperAgent - request.content:", request.content)

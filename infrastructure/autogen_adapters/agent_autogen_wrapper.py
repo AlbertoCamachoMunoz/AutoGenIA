@@ -18,7 +18,7 @@ class AgentAutoGenWrapper(AssistantAgent):
         super().__init__(
             name=name,
             llm_config=agent.get_llm_config(),
-            system_message=f"Wrapper del agente «{name}».",
+            system_message= agent.get_llm_prompt() if agent.get_llm_prompt() is not None else f"Wrapper del agente «{name}».",
             human_input_mode="NEVER",
         )
         self._agent_class = agent_class

@@ -68,16 +68,13 @@ class DependencyInjector:
 
     # ─────── WRAPPERS (cache única) ───────
     @staticmethod
-    def _build_wrappers() -> List[AgentAutoGenWrapper]:
+    def _build_wrappers(llm_type: LLMProvider) -> List[AgentAutoGenWrapper]:
         if DependencyInjector._wrapper_cache is None:
-            provider = None  # ← Por ahora, no pasamos ninguno
-
+            provider = DependencyInjector.get_llm_provider(llm_type)  #aquí estará cacheado, no vuelve a instanciar
             DependencyInjector._wrapper_cache = [
-                AgentAutoGenWrapper("scraper", WebScraperAgent, WebScraperAgent(provider)),
-                # AgentAutoGenWrapper("email",   EmailAgent,       EmailAgent(provider)),
-                # Aquí se añadirá después:
-                # AgentAutoGenWrapper("translator", TranslatorAgent, TranslatorAgent(provider)),
+                AgentAutoGenWrapper("scraper", WebScraperAgent, WebScraperAgent(None)),
                 AgentAutoGenWrapper("translator", TranslatorAgent, TranslatorAgent(provider))
+                # AgentAutoGenWrapper("email",   EmailAgent,       EmailAgent(None)),
             ]
         return DependencyInjector._wrapper_cache
 
@@ -85,7 +82,7 @@ class DependencyInjector:
     @staticmethod
     def _planner_agent(llm_type: LLMProvider) -> AssistantAgent:
         provider   = DependencyInjector.get_llm_provider(llm_type)
-        wrappers   = DependencyInjector._build_wrappers() 
+        wrappers   = DependencyInjector._build_wrappers(llm_type) 
         function_list = [fn for w in wrappers for fn in w.get_function_list()]
         return PlannerAgentFactory.create(provider, function_list)
 
@@ -94,7 +91,7 @@ class DependencyInjector:
     def _group_chat_manager(llm_type: LLMProvider) -> GroupChatManager:
         provider = DependencyInjector.get_llm_provider(llm_type)
         planner  = DependencyInjector._planner_agent(llm_type)
-        wrappers = DependencyInjector._build_wrappers()   
+        wrappers = DependencyInjector._build_wrappers(llm_type)   
 
         llm_cfg = {
             "config_list": [{

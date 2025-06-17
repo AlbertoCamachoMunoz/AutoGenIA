@@ -68,17 +68,25 @@ class TranslatorAgent(AgentInterface):
         ]
 
     def get_llm_config(self) -> Optional[Dict[str, Any]]:
-        if self.provider:
-            return {
-                "config_list": [{
-                    "model": self.provider.get_model_name(),
-                    "base_url": self.provider.get_base_url(),
-                    "api_key": self.provider.get_api_key(),
-                }],
-                "temperature": 0.0,
-                "timeout":     360,
-            }
-        return None
+        return {
+            "config_list": [{
+                "model": self.provider.get_model_name(),
+                "base_url": self.provider.get_base_url(),
+                "api_key": self.provider.get_api_key(),
+            }],
+            "temperature": 0.0,
+            "timeout":     360,
+        }
+    
+    def get_llm_prompt(self) -> str:
+        return (
+            "You are a professional translator specialized in product descriptions.\n"
+            "- You will receive a product description and a target language.\n"
+            "- Return only the translation in the target language, with no extra text, no explanations, and no formatting.\n"
+            "- If the description is already in the target language, repeat it exactly as received, with no changes.\n"
+            "- Do not modify prices or SKU references, only translate the description text.\n"
+            "- Provide accurate and natural translations.\n"
+        )
 
     def run(self, request: AgentAppRequest) -> AgentAppResponse:
         try:
