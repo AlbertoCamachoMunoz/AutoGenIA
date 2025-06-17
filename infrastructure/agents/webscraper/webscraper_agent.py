@@ -65,7 +65,8 @@ class WebScraperAgent(AgentInterface):
                                 },
                                 "required": ["url", "selector_price", "selector_description", "selector_sku"]
                             }
-                        }
+                        },
+                        "limit_results": {"type": "boolean"}  # ← Añadir este campo
                     },
                     "required": ["shops"],
                     "additionalProperties": False,
@@ -110,6 +111,11 @@ class WebScraperAgent(AgentInterface):
                     print(f"→ description: {description} | price: {price} | sku: {sku}")
 
                     products.append(ProductResult(description=description, price=price, sku=sku))
+
+                    # Limita si el flag está activo y ya tienes 5 productos (ajusta el límite si quieres)
+                    if req.limit_results and len(products) >= 5:
+                        print("[INFO] Límite de productos alcanzado")
+                        break
 
             print("Productos extraídos:", products)
 

@@ -43,32 +43,50 @@ To invoke a tool, output **only** a JSON object exactly like:
 Available tools
 ───────────────
 • web_scrape
-    • {{"url": "<url>", "selector": "<css_selector>"}}
+    • {{"url": "<url>", "selector_price": "<css_selector>", "selector_description": "<css_selector>", "selector_sku": {{"tag": "<tag>", "attribute": "<attr>"}}}}
       Returns a list of products with: description, price, sku.
 
+• translate_products
+    • {{"products": [{{"description": "<str>", "price": "<str>", "sku": "<str>"}}], "langs": [{{"lang": "<target_lang>"}}]}}
+      Returns the list of products with all requested translations as new fields.
+
 • send_email
-    • {{"to": "{SMTP_FROM_EMAIL}", "subject": "<subject>", "body": "<summary>"}}
+    • {{"to": "<user_email>", "subject": "<subject>", "body": "<json_with_translations>"}}
 
 Workflow
 ────────
-1. Call web_scrape **once** for each shop entry in the user input, passing its url and selector(s).
+1. For each shop entry in the user input, call web_scrape **once**, passing its url and selectors.
    Example:
-   {{"name": "web_scrape", "arguments": {{"url": "<shop.url>", "selector": "<shop.selector>"}}}}
+   {{"name": "web_scrape", "arguments": {{
+       "url": "<shop.url>",
+       "selector_price": "<shop.selector_price>",
+       "selector_description": "<shop.selector_description>",
+       "selector_sku": {{"tag": "<tag>", "attribute": "<attribute>"}}
+   }}}}
 
-   The web_scrape function returns a list of products, each with fields: description, price, sku.
+   web_scrape returns a list of products, each with fields: description, price, sku.
 
-2. Build a subject (few words) and a brief summary (max. 50 words) **comparing prices**.
+2. Collect all products. Call translate_products **once** with:
+   - products: the list of all products from all shops (from step 1)
+   - langs: the requested languages received in user input
+   Example:
+   {{"name": "translate_products", "arguments": {{
+       "products": [{{"description": "...", "price": "...", "sku": "..."}}],
+       "langs": [{{"lang": "EN"}}, {{"lang": "ES"}}]
+   }}}}
 
-3. Call send_email **once** to:
-   - to: {SMTP_FROM_EMAIL}
+   translate_products returns the same list of products, each with additional translation fields (e.g., description_EN).
+
+3. Build a subject (few words) and a brief summary (max. 50 words) describing the content.
+   Then call send_email **once** to:
+   - to: the email address received in the initial user input
    - subject: your generated subject
-   - body: your generated summary
-
+   - body: a **JSON string** with all translated product information
    Example:
    {{"name": "send_email", "arguments": {{
-       "to": "{SMTP_FROM_EMAIL}",
+       "to": "<user_email>",
        "subject": "<subject>",
-       "body": "<summary>"
+       "body": "<json_with_translations>"
    }}}}
 
 4. After send_email returns SUCCESS, respond exactly:

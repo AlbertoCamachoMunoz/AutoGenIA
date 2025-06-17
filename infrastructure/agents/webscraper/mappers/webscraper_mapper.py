@@ -11,7 +11,8 @@ class WebScraperMapper:
     def map_request(request: AgentAppRequest) -> WebScraperRequestDTO:
         data = request.content
         entries = []
-        # Admite ambos formatos: array y campos raíz
+        limit_results = data.get("limit_results", False)  # ← Recogemos el flag
+
         if "shops" in data:
             for shop in data["shops"]:
                 entries.append(ShopRequestEntry(
@@ -27,7 +28,7 @@ class WebScraperMapper:
                 selector_description=data.get("selector_description", ""),
                 selector_sku=data.get("selector_sku", {})
             ))
-        return WebScraperRequestDTO(entries=entries)
+        return WebScraperRequestDTO(entries=entries, limit_results=limit_results)
 
     @staticmethod
     def map_response(dto: WebScraperResponseDTO) -> AgentAppResponse:
