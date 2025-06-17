@@ -11,7 +11,7 @@ class WebScraperMapper:
     def map_request(request: AgentAppRequest) -> WebScraperRequestDTO:
         data = request.content
         entries = []
-        limit_results = data.get("limit_results", False)  # ← Recogemos el flag
+        limit_results = True # data.get("limit_results", False)  # ← Recogemos el flag
 
         if "shops" in data:
             for shop in data["shops"]:

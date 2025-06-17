@@ -3,6 +3,7 @@ from application.interfaces.agent_interface import AgentInterface
 from application.dtos.agent_app_request import AgentAppRequest
 from application.dtos.agent_app_response import AgentAppResponse
 from application.interfaces.llm_interface import LLMInterface
+from application.enums.status_code import StatusCode
 from infrastructure.agents.translator.dtos.translator_request_dto import TranslatorRequestDTO
 from infrastructure.agents.translator.dtos.translator_response_dto import TranslatorResponseDTO, ProductTranslated
 from infrastructure.agents.translator.mappers.translator_mapper import TranslatorMapper
@@ -75,7 +76,7 @@ class TranslatorAgent(AgentInterface):
                 "api_key": self.provider.get_api_key(),
             }],
             "temperature": 0.0,
-            "timeout":     360,
+            "timeout": 360,
         }
     
     def get_llm_prompt(self) -> str:
@@ -97,7 +98,7 @@ class TranslatorAgent(AgentInterface):
                 return TranslatorMapper.map_response(
                     TranslatorResponseDTO(
                         products=[],
-                        status="ERROR",
+                        status=StatusCode.ERROR,
                         message="No LLM provider configured for TranslatorAgent."
                     )
                 )
@@ -125,7 +126,7 @@ class TranslatorAgent(AgentInterface):
             return TranslatorMapper.map_response(
                 TranslatorResponseDTO(
                     products=translated_products,
-                    status="SUCCESS",
+                    status=StatusCode.SUCCESS,
                     message="OK"
                 )
             )
@@ -134,7 +135,7 @@ class TranslatorAgent(AgentInterface):
             return TranslatorMapper.map_response(
                 TranslatorResponseDTO(
                     products=[],
-                    status="ERROR",
+                    status=StatusCode.ERROR,
                     message=str(exc)
                 )
             )

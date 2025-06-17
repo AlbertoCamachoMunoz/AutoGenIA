@@ -88,4 +88,6 @@ if __name__ == "__main__":
 
 # { "shops": [{"url": "https://www.thefansofmagicstore.com/", "selector_price": "ins .woocommerce-Price-amount bdi", "selector_description": "h3.heading-title.product-name a","selector_sku": {"tag": "a", "attribute": "data-product_sku"}}]}
 
-# { "shops": [{"url": "https://www.thefansofmagicstore.com/", "selector_price": "ins .woocommerce-Price-amount bdi", "selector_description": "h3.heading-title.product-name a","selector_sku": {"tag": "a", "attribute": "data-product_sku"}}],"langs":[{"lang":"english"}]} 
+# { "shops": [{"url": "https://www.thefansofmagicstore.com/", "selector_price": "ins .woocommerce-Price-amount bdi", "selector_description": "h3.heading-title.product-name a","selector_sku": {"tag": "a", "attribute": "data-product_sku"}}],"langs":[{"lang":"english"}],"limit_results": true} 
+
+# { "shops": [{"url": "https://www.thefansofmagicstore.com/", "selector_price":"ins .woocommerce-Price-amount bdi","selector_description":"h3.heading-title.product-name a","selector_sku":{"tag":"a","attribute":"data-product_sku"}}],"langs":[{"lang":"EN"}],"email":"usuario@ejemplo.com"}
