@@ -12,15 +12,21 @@ from application.enums.llm_provider import LLMProvider
 from application.interfaces.llm_interface import LLMInterface
 from application.factories.llm_provider_factory import LLMProviderFactory
 
-from infrastructure.agents.webscraper.webscraper_agent import WebScraperAgent
+# LLM
 from infrastructure.llms_providers.llm_studio.llm_studio import LLMStudio
 from infrastructure.llms_providers.gemini.gemini import Gemini
 
+# Agentes planificadores
 from infrastructure.autogen_agents.planner_agent import PlannerAgentFactory
+from infrastructure.autogen_agents.closure_agent import ClosureAgent
+from infrastructure.autogen_agents.shared_buffer import get_last_json
+
+# Agentes
 from infrastructure.autogen_adapters.agent_autogen_wrapper import AgentAutoGenWrapper
 from infrastructure.agents.wikipedia.wikipedia_agent import WikipediaAgent
-from infrastructure.agents.email.email_agent import EmailAgent
+from infrastructure.agents.webscraper.webscraper_agent import WebScraperAgent
 from infrastructure.agents.translator.translator_agent import TranslatorAgent
+from infrastructure.agents.email.email_agent import EmailAgent
 
 logger = logging.getLogger(__name__)
 
@@ -123,9 +129,10 @@ class DependencyInjector:
                 caller      = planner,
                 executor    = wrapper,
             )
-
+        # Crear ClosureAgent con la función que obtiene el último JSON    
+        closure_agent = ClosureAgent(get_last_json)
         gchat = GroupChat(
-            agents  = [planner] + wrappers,
+            agents  = [planner] + [closure_agent] + wrappers,
             messages=[],
             max_round=20,
             speaker_selection_method="round_robin",

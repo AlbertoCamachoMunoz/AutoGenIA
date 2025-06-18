@@ -5,6 +5,7 @@ from application.dtos.agent_app_request import AgentAppRequest
 from application.dtos.agent_app_response import AgentAppResponse
 from application.interfaces.llm_interface import LLMInterface
 from application.enums.status_code import StatusCode
+from infrastructure.autogen_agents.shared_buffer import set_last_json
 from infrastructure.agents.translator.dtos.translator_request_dto import TranslatorRequestDTO
 from infrastructure.agents.translator.dtos.translator_response_dto import TranslatorResponseDTO, ProductTranslated
 from infrastructure.agents.translator.mappers.translator_mapper import TranslatorMapper
@@ -138,6 +139,13 @@ class TranslatorAgent(AgentInterface):
                         message="OK"
                     )
                     response = self.provider.send_data(llm_app_request)
+                    print("---------------------------   Respuesta del LLMAppResponse: ---------------------------------")
+                    print(response)
+                    print(vars(response))
+                    print(response.__dict__)
+                    print(dir(response))
+                    print(response.choices[0].message.content)
+                    print("---------------------------   Respuesta del LLMAppResponse: ---------------------------------")
                     print("   Respuesta recibida del LLM (LLMAppResponse):")
                     print("      generated_text:", repr(getattr(response, "generated_text", None)))
                     translations[lang_code] = (
@@ -166,6 +174,7 @@ class TranslatorAgent(AgentInterface):
             print("\n→ Respuesta final de TranslatorMapper.map_response:")
             print("  ", response_final)
             print("=== [Fin TranslatorAgent.run] ===\n")
+            set_last_json(response_final.content)
             return response_final
 
         except Exception as exc:
@@ -180,4 +189,5 @@ class TranslatorAgent(AgentInterface):
             print("→ Respuesta generada por excepción:")
             print("  ", response_exc)
             print("=== [Fin TranslatorAgent.run] ===\n")
+            set_last_json(response_exc.content)
             return response_exc
