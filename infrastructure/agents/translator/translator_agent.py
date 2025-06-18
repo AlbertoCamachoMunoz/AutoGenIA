@@ -1,4 +1,5 @@
 from typing import Optional, Dict, Any
+from application.dtos.llm_app_request import LLMAppRequest
 from application.interfaces.agent_interface import AgentInterface
 from application.dtos.agent_app_request import AgentAppRequest
 from application.dtos.agent_app_response import AgentAppResponse
@@ -15,7 +16,7 @@ LANG_MAP = {
     "pt": "PT",
     "spanish": "ES",
     "es": "ES"
-    # Añade más mapeos si quieres
+    # Puedes añadir más mapeos aquí
 }
 
 class TranslatorAgent(AgentInterface):
@@ -90,29 +91,59 @@ class TranslatorAgent(AgentInterface):
         )
 
     def run(self, request: AgentAppRequest) -> AgentAppResponse:
+        print("\n=== [TranslatorAgent.run] ===")
+        print("Entrada original request.content:")
+        print(repr(request.content))
         try:
             req: TranslatorRequestDTO = TranslatorMapper.map_request(request)
+            print("→ Después de map_request:")
+            print("   products:", req.products)
+            print("   langs:", req.langs)
+
             translated_products = []
 
             if not self.provider:
-                return TranslatorMapper.map_response(
+                print("✗ No LLM provider configurado.")
+                resp = TranslatorMapper.map_response(
                     TranslatorResponseDTO(
                         products=[],
                         status=StatusCode.ERROR,
                         message="No LLM provider configured for TranslatorAgent."
                     )
                 )
+                print("→ Respuesta generada por error de provider:")
+                print("  ", resp)
+                return resp
 
-            for prod in req.products:
+            for idx, prod in enumerate(req.products):
+                print(f"\n--- Traduciendo producto {idx+1} ---")
+                print("Descripción:", prod.description)
+                print("Precio:", prod.price)
+                print("SKU:", prod.sku)
                 translations = {}
-                for lang_entry in req.langs:
+                for lang_idx, lang_entry in enumerate(req.langs):
                     lang_code = LANG_MAP.get(lang_entry.lang.lower(), lang_entry.lang.upper())
                     prompt = (
                         f"Traduce el siguiente texto al idioma '{lang_entry.lang}', responde solo el texto traducido:\n"
                         f"{prod.description}"
                     )
-                    response = self.provider.generate(prompt)
-                    translations[lang_code] = response.strip() if response else prod.description
+                    print(f"\n   [Producto {idx+1} - Idioma {lang_idx+1}]")
+                    print("   Idioma destino:", lang_entry.lang, "| Código:", lang_code)
+                    print("   Prompt enviado al LLM:")
+                    print(repr(prompt))
+                    # Llama al LLM vía provider:
+                    llm_app_request = LLMAppRequest(
+                        user_input=prompt,
+                        status=StatusCode.SUCCESS,
+                        message="OK"
+                    )
+                    response = self.provider.send_data(llm_app_request)
+                    print("   Respuesta recibida del LLM (LLMAppResponse):")
+                    print("      generated_text:", repr(getattr(response, "generated_text", None)))
+                    translations[lang_code] = (
+                        response.generated_text.strip() if getattr(response, "generated_text", None) else prod.description
+                    )
+                    print("   Traducción final almacenada:", translations[lang_code])
 
                 translated_products.append(
                     ProductTranslated(
@@ -122,20 +153,31 @@ class TranslatorAgent(AgentInterface):
                         translations=translations
                     )
                 )
+                print("→ Objeto ProductTranslated creado:")
+                print("  ", translated_products[-1])
 
-            return TranslatorMapper.map_response(
+            response_final = TranslatorMapper.map_response(
                 TranslatorResponseDTO(
                     products=translated_products,
                     status=StatusCode.SUCCESS,
                     message="OK"
                 )
             )
+            print("\n→ Respuesta final de TranslatorMapper.map_response:")
+            print("  ", response_final)
+            print("=== [Fin TranslatorAgent.run] ===\n")
+            return response_final
 
         except Exception as exc:
-            return TranslatorMapper.map_response(
+            print("✗ EXCEPCIÓN DETECTADA EN TranslatorAgent.run:", repr(exc))
+            response_exc = TranslatorMapper.map_response(
                 TranslatorResponseDTO(
                     products=[],
                     status=StatusCode.ERROR,
                     message=str(exc)
                 )
             )
+            print("→ Respuesta generada por excepción:")
+            print("  ", response_exc)
+            print("=== [Fin TranslatorAgent.run] ===\n")
+            return response_exc

@@ -1,3 +1,4 @@
+import json
 from infrastructure.agents.email.dtos.email_request_dto import EmailRequestDTO
 from infrastructure.agents.email.dtos.email_response_dto import EmailResponseDTO
 from application.dtos.agent_app_request import AgentAppRequest
@@ -7,11 +8,15 @@ from application.enums.status_code import StatusCode
 class EmailMapper:
     @staticmethod
     def map_request(app_request: AgentAppRequest) -> EmailRequestDTO:
-        data = app_request.content                  # dict con to/subject/body
+        data = app_request.content
+        body = data["body"]
+        # Si body llega como lista, lo serializamos a str
+        if isinstance(body, list):
+            body = json.dumps(body, ensure_ascii=False)
         return EmailRequestDTO(
             to      = data["to"],
             subject = data["subject"],
-            body    = data["body"]
+            body    = body
         )
 
     @staticmethod
