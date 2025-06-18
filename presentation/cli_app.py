@@ -1,8 +1,4 @@
 # presentation/cli_app.py
-"""
-CLI interactiva para AutoGen IA – versión iterativa y robusta.
-"""
-
 import logging
 import sys
 from requests.exceptions import ConnectionError
@@ -12,12 +8,12 @@ from openai import NotFoundError, OpenAIError
 logging.basicConfig(level=logging.ERROR, format="%(message)s")
 logging.getLogger("autogen.oai.client").setLevel(logging.CRITICAL)
 
-# Importaciones locales
 from application.use_cases.autogen_runtime import run_autogen_chat
 from application.dependency_injection import DependencyInjector
 from application.enums.llm_provider import LLMProvider
-from utils.planner_helpers import last_planner_response
 
+# NUEVO: Importa el DTO y Mapper para el resumen estructurado
+from application.mappers.summary_translation_mapper import SummaryTranslationMapper
 
 def main() -> None:
     print("=== AUTO-GEN CLI ===")
@@ -27,7 +23,7 @@ def main() -> None:
     opcion = input("Opción (1/2): ").strip()
 
     if opcion == "1":
-        # llm_type = LLMProvider.GEMINI   para futuras versiones
+        # LLMProvider.GEMINI para futuras versiones
         llm_type = LLMProvider.LLM_STUDIO
     elif opcion == "2":
         llm_type = LLMProvider.LLM_STUDIO
@@ -52,16 +48,22 @@ def main() -> None:
             # Limpiar historial previo si es necesario
             manager.groupchat.messages = []
 
-            # Ejecutar conversación
-            chat = run_autogen_chat(user, manager, prompt)
+            # Ejecutar conversación con summary_method que extrae el JSON estructurado
+            dto = run_autogen_chat(
+                user, 
+                manager, 
+                prompt
+            )
 
-            # Mostrar respuesta del planner siempre como DTO coherente
-            planner_dto = last_planner_response(manager.groupchat.messages)
-
-            print("\n--- Planner ----------------------------------------")
-            print(planner_dto.content)
-            print(f"[{planner_dto.message}]")
-            print("----------------------------------------------------\n")
+            # Muestra la tabla básica por consola
+            print("\n--- RESULTADO TRADUCCIÓN ---------------------------------")
+            print("{:<40} {:<10} {:<10} {:<30} {}".format("URL", "SKU", "Precio", "Descripción", "Traducciones"))
+            for prod in dto.products:
+                traducciones = " | ".join([f"{lang}: {txt}" for lang, txt in prod.translations.items()])
+                print("{:<40} {:<10} {:<10} {:<30} {}".format(
+                    prod.url[:40], prod.sku[:10], prod.price[:10], prod.description[:30], traducciones
+                ))
+            print("---------------------------------------------------------\n")
 
         except ConnectionError:
             print(
@@ -78,16 +80,11 @@ def main() -> None:
         except Exception as e:
             print(f"\n❌ \t Error inesperado: {e}\n")
 
-
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
         print("\nPrograma interrumpido por el usuario.")
         sys.exit(0)
-
-# { "shops": [{"url": "https://www.thefansofmagicstore.com/", "selector_price": "ins .woocommerce-Price-amount bdi", "selector_description": "h3.heading-title.product-name a","selector_sku": {"tag": "a", "attribute": "data-product_sku"}}]}
-
-# { "shops": [{"url": "https://www.thefansofmagicstore.com/", "selector_price": "ins .woocommerce-Price-amount bdi", "selector_description": "h3.heading-title.product-name a","selector_sku": {"tag": "a", "attribute": "data-product_sku"}}],"langs":[{"lang":"english"}],"limit_results": true} 
 
 # { "shops": [{"url": "https://www.thefansofmagicstore.com/", "selector_price":"ins .woocommerce-Price-amount bdi","selector_description":"h3.heading-title.product-name a","selector_sku":{"tag":"a","attribute":"data-product_sku"}}],"langs":[{"lang":"EN"}],"email":"usuario@ejemplo.com"}
