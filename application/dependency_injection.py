@@ -77,7 +77,7 @@ class DependencyInjector:
         if DependencyInjector._wrapper_cache is None:
             provider = DependencyInjector.get_llm_provider(llm_type)  #aquí estará cacheado, no vuelve a instanciar
             DependencyInjector._wrapper_cache = [
-                AgentAutoGenWrapper("scraper", WebScraperAgent, WebScraperAgent(None)),
+                AgentAutoGenWrapper("scraper", WebScraperAgent, WebScraperAgent(provider)),
                 AgentAutoGenWrapper("translator", TranslatorAgent, TranslatorAgent(provider)),
                 # AgentAutoGenWrapper("email",   EmailAgent,       EmailAgent(None))
             ]
@@ -106,14 +106,15 @@ class DependencyInjector:
             }]
         }
 
-        # Registrar funciones exactamente con esas instancias
+        # Registrar funciones de cada wrapper individualmente
         for wrapper in wrappers:
             agent_cls = wrapper.get_agent().__class__
 
             def _executor(w: AgentAutoGenWrapper):
-                def exec_fn(**kwargs: Any) -> Dict[str, str]:
-                    dto  = AgentAppRequest(content=kwargs)
-                    resp = w.run(dto)
+                def exec_fn(*args: object, **kwargs: object) -> dict:
+                    arguments = kwargs.get("arguments", kwargs)
+                    app_request = AgentAppRequest(content=arguments)
+                    resp = w.run(app_request)
                     return {
                         "content": resp.content,
                         "status":  resp.status.name,
@@ -121,18 +122,19 @@ class DependencyInjector:
                     }
                 return exec_fn
 
+            # ¡IMPORTANTE!: asignar closure correcto usando default arg
             register_function(
                 _executor(wrapper),
                 name        = agent_cls.get_function_name(),
                 description = agent_cls.get_function_description(),
-                caller      = planner,
+                caller      = planner,           
                 executor    = wrapper,
             )
 
         gchat = GroupChat(
             agents  = [planner] + wrappers,
             messages=[],
-            max_round=5,
+            max_round=10,
             speaker_selection_method="round_robin",
             allow_repeat_speaker=False,
             select_speaker_auto_llm_config=llm_cfg,
