@@ -11,3 +11,4 @@ class ShopRequestEntry:
 @dataclass
 class WebScraperRequestDTO:
     entries: List[ShopRequestEntry]
+    limit_results: bool = False  # ← Nuevo campo

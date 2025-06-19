@@ -34,52 +34,75 @@ class PlannerAgentFactory:
         }
 
         # ───────────────────── PROMPT ─────────────────────
-        system_message = f"""
-You are a strict workflow executor.
-**Never** reply with natural language.
-To invoke a tool, output **only** a JSON object exactly like:
-{{"name": "<tool_name>", "arguments": {{<args>}}}}
+        system_message = """
+You are FORBIDDEN to generate any output other than a valid JSON tool call.
+Every reply must be a JSON object in the format:Add commentMore actions
+{"name": "<tool_name>", "arguments": {<args>}}
 
-Available tools
-───────────────
-• web_scrape
-    • {{"url": "<url>", "selector": "<css_selector>"}}
-      Returns a list of products with: description, price, sku.
+INCORRECT (severe penalty -10 points):
+- Any natural language text, summaries, explanations, apologies, or greetings.
+- Partial tool call + text.
+- Outputting more than one tool call at once.
+- Omitting required parameters.
+- Outputting invalid JSON (malformed, not an object).
 
-• send_email
-    • {{"to": "{SMTP_FROM_EMAIL}", "subject": "<subject>", "body": "<summary>"}}
+CORRECT (reward +10 points):
+- Only output a single tool call per step, exactly as a JSON object.
+- Use no text at all before or after the JSON.
+- All arguments strictly as described below.
 
-Workflow
-────────
-1. Call web_scrape **once** for each shop entry in the user input, passing its url and selector(s).
-   Example:
-   {{"name": "web_scrape", "arguments": {{"url": "<shop.url>", "selector": "<shop.selector>"}}}}
+Automatic Scoring:
+- Correct output: +10 points
+- Textual output: -10 points per violation
+- Multiple tool calls: -10 points
+- Malformed JSON: -20 points
+- Any natural language: -10 points
 
-   The web_scrape function returns a list of products, each with fields: description, price, sku.
+If you reach a negative score, your session will be terminated.
 
-2. Build a subject (few words) and a brief summary (max. 50 words) **comparing prices**.
+Available tools:
+web_scrape
+  {"url": "<url>", "selector_price": "<css_selector>", "selector_description": "<css_selector>", "selector_sku": {"tag": "<tag>", "attribute": "<attr>"}}
+translate_products
+  {"products": [{"description": "<str>", "price": "<str>", "sku": "<str>"}], "langs": [{"lang": "<target_lang>"}]}
+send_email
+  {"to": "<user_email>", "subject": "<subject>", "body": "<json_with_translations_as_string>"}
+  IMPORTANT: The "body" argument MUST be a JSON string, not an array.
+  Example:
+    {
+      "name": "send_email",
+      "arguments": {
+        "to": "user@example.com",
+        "subject": "Translated Products",
+        "body": "[{\"description\": \"...\", \"price\": \"...\", \"sku\": \"...\", \"description_EN\": \"...\"}]"
+      }
+    }
+  INCORRECT:
+    {
+      "name": "send_email",
+      "arguments": {
+        "body": [{"description": "..."}]
+      }
+    }
+  (This is an array, not a string.)
 
-3. Call send_email **once** to:
-   - to: {SMTP_FROM_EMAIL}
-   - subject: your generated subject
-   - body: your generated summary
+Workflow:
+1. For each shop in the input, call web_scrape ONCE, passing the required parameters.
+2. After scraping, collect all products and call translate_products ONCE, passing the products and all requested languages.
+3. Generate a suitable email subject (few words) and a brief summary (max. 50 words), then call send_email ONCE, with the "body" parameter as a JSON string (see above).
+4. After send_email returns SUCCESS, output exactly:
+{"content": "TERMINATE"}
 
-   Example:
-   {{"name": "send_email", "arguments": {{
-       "to": "{SMTP_FROM_EMAIL}",
-       "subject": "<subject>",
-       "body": "<summary>"
-   }}}}
+Rules (MANDATORY):
+- One tool call per step, in exact order.
+- NO text, explanations or greetings, ever.
+- Do NOT call any tool except those listed.
+- If a step fails, do NOT attempt recovery, just proceed to the next.
+- If you output anything except a valid JSON tool call, your output is invalid.
 
-4. After send_email returns SUCCESS, respond exactly:
-   {{"content": "TERMINATE"}}
+Repeat: All your outputs must be single valid JSON tool calls. Never output any text, comments, explanations, or greetings.
 
-Rules
-─────
-• One tool call per step, in order.
-• NO text besides the JSON tool call.
-• Do NOT call any tool except those listed.
-• If anything fails, do NOT try to repair; continue and finish the workflow.
+Scoring is enforced; repeated violations will terminate your execution.
 """.strip()
 
         is_term: Callable[[dict], bool] = lambda m: "TERMINATE" in m.get("content", "")

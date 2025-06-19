@@ -8,6 +8,7 @@ from application.interfaces.agent_interface import AgentInterface
 from application.dtos.agent_app_request import AgentAppRequest
 from application.dtos.agent_app_response import AgentAppResponse
 
+from buffer.shared_buffer import get_last_json, set_last_json
 from infrastructure.agents.webscraper.dtos.webscraper_request_dto import WebScraperRequestDTO
 from infrastructure.agents.webscraper.dtos.webscraper_response_dto import WebScraperResponseDTO, ProductResult
 from infrastructure.agents.webscraper.mappers.webscraper_mapper import WebScraperMapper
@@ -67,7 +68,7 @@ class WebScraperAgent(AgentInterface):
                 },
             }
         ]
-
+    
     def run(self, request: AgentAppRequest) -> AgentAppResponse:
         print("WebScraperAgent - request.content:", request.content)
         try:
@@ -85,13 +86,11 @@ class WebScraperAgent(AgentInterface):
                 for prod in soup.find_all(entry.selector_sku["tag"], attrs={entry.selector_sku["attribute"]: True}):
                     sku = prod.get(entry.selector_sku["attribute"], "")
 
-                    # Subimos hasta el contenedor que tenga toda la info del producto
                     meta_wrapper = prod.find_parent(class_="meta-wrapper")
                     if not meta_wrapper:
                         print(f"SKU: {sku} sin meta-wrapper, saltando")
                         continue
 
-                    # Precio y descripción según los selectores relativos dentro de meta-wrapper
                     price_elem = meta_wrapper.select_one(entry.selector_price)
                     desc_elem = meta_wrapper.select_one(entry.selector_description)
 
@@ -102,20 +101,36 @@ class WebScraperAgent(AgentInterface):
 
                     products.append(ProductResult(description=description, price=price, sku=sku))
 
+                    if req.limit_results and len(products) > 3:
+                        print("[INFO] Límite de productos alcanzado")
+                        break
+
             print("Productos extraídos:", products)
 
+            # --- DEVOLUCIÓN HOMOGENEIZADA PARA FLUJO AUTOGEN ---
+            content = {
+                "products": [p.__dict__ for p in products],  # Asegúrate que ProductResult es serializable (usa __dict__ o dataclass.asdict)
+            }
             dto = WebScraperResponseDTO(
                 products=products,
                 status=StatusCode.SUCCESS,
                 message="OK"
             )
-            return WebScraperMapper.map_response(dto)
+
+            set_last_json(content)
+            print("\n WebScraperAgent   ------  get_last_json:", get_last_json())
+
+            return AgentAppResponse(
+                content=content,
+                status=StatusCode.SUCCESS,
+                message="OK"
+            )
 
         except Exception as exc:
             print("EXCEPCIÓN en WebScraperAgent:", exc)
-            dto = WebScraperResponseDTO(
-                products=[],
+            print("\n WebScraperAgent con excepcion   ------  get_last_json:", get_last_json())
+            return AgentAppResponse(
+                content={"products": []},
                 status=StatusCode.ERROR,
                 message=str(exc)
             )
-            return WebScraperMapper.map_response(dto)

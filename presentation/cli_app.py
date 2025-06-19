@@ -53,14 +53,10 @@ def main() -> None:
             manager.groupchat.messages = []
 
             # Ejecutar conversación
-            chat = run_autogen_chat(user, manager, prompt)
+            result = run_autogen_chat(user, manager, prompt)
 
-            # Mostrar respuesta del planner siempre como DTO coherente
-            planner_dto = last_planner_response(manager.groupchat.messages)
-
-            print("\n--- Planner ----------------------------------------")
-            print(planner_dto.content)
-            print(f"[{planner_dto.message}]")
+            print("\n--- RESULTADO EN CLI_APP ----------------------------------------")
+            print(result)
             print("----------------------------------------------------\n")
 
         except ConnectionError:
@@ -86,4 +82,4 @@ if __name__ == "__main__":
         print("\nPrograma interrumpido por el usuario.")
         sys.exit(0)
 
-# { "shops": [{"url": "https://www.thefansofmagicstore.com/", "selector_price": ".woocommerce-Price-amount .amount", "description": "h3.heading-title.product-name a"","selector_sku": {"tag": "a", "attribute": "data-product_sku"}}]}
+# { "shops": [{"url": "https://www.thefansofmagicstore.com/", "selector_price":"ins .woocommerce-Price-amount bdi","selector_description":"h3.heading-title.product-name a","selector_sku":{"tag":"a","attribute":"data-product_sku"}}],"langs":[{"lang":"EN"}],"email":"usuario@ejemplo.com"}

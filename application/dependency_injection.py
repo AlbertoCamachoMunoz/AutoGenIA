@@ -125,7 +125,7 @@ class DependencyInjector:
         gchat = GroupChat(
             agents  = [planner] + wrappers,
             messages=[],
-            max_round=20,
+            max_round=10,
             speaker_selection_method="round_robin",
             allow_repeat_speaker=False,
             select_speaker_auto_llm_config=llm_cfg,
