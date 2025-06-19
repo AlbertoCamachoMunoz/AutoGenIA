@@ -46,7 +46,7 @@ class WikipediaAgent(AgentInterface):
     def get_llm_prompt(self) -> None:
         return None
     
-    def run(self, request: AgentAppRequest) -> AgentAppResponse:
+    def execute_function(self, request: AgentAppRequest) -> AgentAppResponse:
         print(f"Agente wikipedia recibe datos para buscar: {request}")
         try:
             internal_request = WikipediaMapper.map_request(request)

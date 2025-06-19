@@ -31,7 +31,7 @@ class AgentAutoGenWrapper(AssistantAgent):
         return self._agent_class.get_function_list()
 
     def run(self, request: AgentAppRequest) -> AgentAppResponse:
-        return self._agent.run(request)
+        return self._agent.execute_function(request)
 
     def execute_function(self, function_call, **kwargs):
         """
@@ -56,7 +56,7 @@ class AgentAutoGenWrapper(AssistantAgent):
             app_request = AgentAppRequest(content=arguments)
             logger.debug("[%s] app_request → %s", self.name, app_request)
 
-            app_response = self._agent.run(app_request)
+            app_response = self._agent.execute_function(app_request)
             logger.debug("[%s] app_response ← %s", self.name, app_response)
 
             # ÚNICO CAMBIO: Usar solo el mapper, no crear el dict manualmente

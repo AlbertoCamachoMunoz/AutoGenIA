@@ -13,8 +13,16 @@ class FunctionExecutionMapper:
 
     @staticmethod
     def map_response(agent_name: str, app_response: AgentAppResponse) -> FunctionExecutionResponseDTO:
+        # DEVOLVER EL OBJETO DIRECTAMENTE, NUNCA UN STRING (IMPORTANTE PARA ENCADENADO DE FUNCIONES)
+        # Mantener la estructura como dict puro, no como string
+        # Así el planner puede acceder a 'products', 'status', 'message', etc.
+
         return FunctionExecutionResponseDTO(
             name=agent_name,
-            content=f"{app_response.content}\n\n[Status: {app_response.status.name}]",
+            content={
+                "content": app_response.content,
+                "status": app_response.status.name,
+                "message": app_response.message,
+            },
             status=app_response.status
         )

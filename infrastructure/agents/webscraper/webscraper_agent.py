@@ -1,5 +1,3 @@
-# infrastructure/agents/webscraper/webscraper_agent.py
-
 from typing import Optional, Dict, Any
 import requests
 from bs4 import BeautifulSoup
@@ -74,13 +72,30 @@ class WebScraperAgent(AgentInterface):
             }
         ]
 
-    def get_llm_config(self) -> None:
-        return None
+    def get_llm_config(self) -> Optional[Dict[str, Any]]:
+        print("URL Agente scrapper en el get_llm_config:", self.provider.get_base_url_for_agent())
+        return {
+            "config_list": [{
+                "model": self.provider.get_model_name(),
+                "base_url": "http://localhost:1234/v1",  # Ajusta según corresponda
+                "api_key": self.provider.get_api_key(),
+            }],
+            "temperature": 0.0,
+            "timeout": 360,
+        }
     
-    def get_llm_prompt(self) -> None:
-        return None
+    def get_llm_prompt(self) -> str:
+        return (
+            "You are a data extraction agent specialized in e-commerce product pages.\n"
+            "- Your task is to scrape product information from a given web page using the provided CSS selectors.\n"
+            "- For each product found, extract the description, price, and SKU using the specified selectors.\n"
+            "- Return only the raw extracted data, without any commentary, summaries, or formatting.\n"
+            "- Do not infer or generate content; if a value cannot be found, leave it empty.\n"
+            "- Output must be strictly the result of the extraction, not a generated or rephrased text.\n"
+            "- Do not attempt to translate, summarize, or interpret product data—only extract and return as found on the page.\n"
+        )
 
-    def run(self, request: AgentAppRequest) -> AgentAppResponse:
+    def execute_function(self, request: AgentAppRequest) -> AgentAppResponse:
         print("WebScraperAgent - request.content:", request.content)
         try:
             req: WebScraperRequestDTO = WebScraperMapper.map_request(request)
@@ -112,30 +127,36 @@ class WebScraperAgent(AgentInterface):
 
                     products.append(ProductResult(description=description, price=price, sku=sku))
 
-                    # Limita si el flag está activo y ya tienes 5 productos (ajusta el límite si quieres)
                     if req.limit_results and len(products) > 3:
                         print("[INFO] Límite de productos alcanzado")
                         break
 
             print("Productos extraídos:", products)
 
+            # --- DEVOLUCIÓN HOMOGENEIZADA PARA FLUJO AUTOGEN ---
+            content = {
+                "products": [p.__dict__ for p in products],  # Asegúrate que ProductResult es serializable (usa __dict__ o dataclass.asdict)
+            }
             dto = WebScraperResponseDTO(
                 products=products,
                 status=StatusCode.SUCCESS,
                 message="OK"
             )
 
-            set_last_json(products)
+            set_last_json(content)
             print("\n WebScraperAgent   ------  get_last_json:", get_last_json())
 
-            return WebScraperMapper.map_response(dto)
+            return AgentAppResponse(
+                content=content,
+                status=StatusCode.SUCCESS,
+                message="OK"
+            )
 
         except Exception as exc:
             print("EXCEPCIÓN en WebScraperAgent:", exc)
             print("\n WebScraperAgent con excepcion   ------  get_last_json:", get_last_json())
-            dto = WebScraperResponseDTO(
-                products=[],
+            return AgentAppResponse(
+                content={"products": []},
                 status=StatusCode.ERROR,
                 message=str(exc)
             )
-            return WebScraperMapper.map_response(dto)

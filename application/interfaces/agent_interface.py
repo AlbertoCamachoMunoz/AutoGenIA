@@ -33,7 +33,7 @@ class AgentInterface(ABC):
         pass
     
     @abstractmethod
-    def run(self, request: AgentAppRequest) -> AgentAppResponse:
+    def execute_function(self, request: AgentAppRequest) -> AgentAppResponse:
         pass
 
 

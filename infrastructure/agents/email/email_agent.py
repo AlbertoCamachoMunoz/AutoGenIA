@@ -49,7 +49,7 @@ class EmailAgent(AgentInterface):
     def get_llm_prompt(self) -> None:
         return None
     
-    def run(self, request: AgentAppRequest) -> AgentAppResponse:
+    def execute_function(self, request: AgentAppRequest) -> AgentAppResponse:
         try:
             print("[EmailAgent] → Iniciando proceso de envío de correo...")
             print(f"[EmailAgent] Contenido recibido: {request.content}")
