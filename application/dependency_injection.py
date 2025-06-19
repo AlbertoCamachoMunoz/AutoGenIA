@@ -18,7 +18,6 @@ from infrastructure.llms_providers.gemini.gemini import Gemini
 
 # Agentes planificadores
 from infrastructure.autogen_agents.planner_agent import PlannerAgentFactory
-from infrastructure.autogen_agents.closure_agent import ClosureAgent
 from infrastructure.autogen_agents.shared_buffer import get_last_json
 
 # Agentes
@@ -79,8 +78,8 @@ class DependencyInjector:
             provider = DependencyInjector.get_llm_provider(llm_type)  #aquí estará cacheado, no vuelve a instanciar
             DependencyInjector._wrapper_cache = [
                 AgentAutoGenWrapper("scraper", WebScraperAgent, WebScraperAgent(None)),
-                AgentAutoGenWrapper("translator", TranslatorAgent, TranslatorAgent(provider)),
-                AgentAutoGenWrapper("email",   EmailAgent,       EmailAgent(None))
+                # AgentAutoGenWrapper("translator", TranslatorAgent, TranslatorAgent(provider)),
+                # AgentAutoGenWrapper("email",   EmailAgent,       EmailAgent(None))
             ]
         return DependencyInjector._wrapper_cache
 
@@ -129,12 +128,11 @@ class DependencyInjector:
                 caller      = planner,
                 executor    = wrapper,
             )
-        # Crear ClosureAgent con la función que obtiene el último JSON    
-        closure_agent = ClosureAgent(get_last_json)
+
         gchat = GroupChat(
-            agents  = [planner] + [closure_agent] + wrappers,
+            agents  = [planner] + wrappers,
             messages=[],
-            max_round=20,
+            max_round=10,
             speaker_selection_method="round_robin",
             allow_repeat_speaker=False,
             select_speaker_auto_llm_config=llm_cfg,

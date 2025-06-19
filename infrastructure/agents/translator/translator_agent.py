@@ -74,7 +74,7 @@ class TranslatorAgent(AgentInterface):
         return {
             "config_list": [{
                 "model": self.provider.get_model_name(),
-                "base_url": self.provider.get_base_url(),
+                "base_url": "http://localhost:1234/v1/chat/completions",# self.provider.get_base_url(),
                 "api_key": self.provider.get_api_key(),
             }],
             "temperature": 0.0,

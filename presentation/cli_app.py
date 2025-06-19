@@ -12,9 +12,6 @@ from application.use_cases.autogen_runtime import run_autogen_chat
 from application.dependency_injection import DependencyInjector
 from application.enums.llm_provider import LLMProvider
 
-# NUEVO: Importa el DTO y Mapper para el resumen estructurado
-from application.mappers.summary_translation_mapper import SummaryTranslationMapper
-
 def main() -> None:
     print("=== AUTO-GEN CLI ===")
     print("Selecciona el modelo LLM:")
@@ -57,12 +54,8 @@ def main() -> None:
 
             # Muestra la tabla básica por consola
             print("\n--- RESULTADO TRADUCCIÓN ---------------------------------")
-            print("{:<40} {:<10} {:<10} {:<30} {}".format("URL", "SKU", "Precio", "Descripción", "Traducciones"))
-            for prod in dto.products:
-                traducciones = " | ".join([f"{lang}: {txt}" for lang, txt in prod.translations.items()])
-                print("{:<40} {:<10} {:<10} {:<30} {}".format(
-                    prod.url[:40], prod.sku[:10], prod.price[:10], prod.description[:30], traducciones
-                ))
+            print("dto en el cli_app", dto)
+
             print("---------------------------------------------------------\n")
 
         except ConnectionError:
