@@ -1,17 +1,19 @@
-# infrastructure/agents/webscraper/mappers/webscraper_mapper.py
 from infrastructure.agents.webscraper.dtos.webscraper_request_dto import WebScraperRequestDTO, ShopRequestEntry
 from infrastructure.agents.webscraper.dtos.webscraper_response_dto import WebScraperResponseDTO, ProductResult
 from application.dtos.agent_app_request import AgentAppRequest
 from application.dtos.agent_app_response import AgentAppResponse
-
 import json
 
 class WebScraperMapper:
     @staticmethod
     def map_request(request: AgentAppRequest) -> WebScraperRequestDTO:
         data = request.content
+        # Si la key "kwargs" existe, la usamos como data principal
+        if isinstance(data, dict) and "kwargs" in data and isinstance(data["kwargs"], dict):
+            data = data["kwargs"]
+
         entries = []
-        limit_results = True # data.get("limit_results", False)  # ← Recogemos el flag
+        limit_results = True  # data.get("limit_results", False)
 
         if "shops" in data:
             for shop in data["shops"]:

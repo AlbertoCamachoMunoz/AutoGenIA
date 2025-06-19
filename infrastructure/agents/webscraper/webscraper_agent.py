@@ -13,6 +13,7 @@ from application.interfaces.llm_interface import LLMInterface
 from infrastructure.agents.webscraper.dtos.webscraper_request_dto import WebScraperRequestDTO
 from infrastructure.agents.webscraper.dtos.webscraper_response_dto import WebScraperResponseDTO, ProductResult
 from infrastructure.agents.webscraper.mappers.webscraper_mapper import WebScraperMapper
+from infrastructure.autogen_agents.shared_buffer import get_last_json, set_last_json
 
 HEADERS = {
     "User-Agent": (
@@ -123,10 +124,15 @@ class WebScraperAgent(AgentInterface):
                 status=StatusCode.SUCCESS,
                 message="OK"
             )
+
+            set_last_json(products)
+            print("WebScraperAgent   ------  get_last_json:", get_last_json())
+
             return WebScraperMapper.map_response(dto)
 
         except Exception as exc:
             print("EXCEPCIÓN en WebScraperAgent:", exc)
+            print("WebScraperAgent con excepcion   ------  get_last_json:", get_last_json())
             dto = WebScraperResponseDTO(
                 products=[],
                 status=StatusCode.ERROR,
