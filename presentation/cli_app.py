@@ -16,7 +16,6 @@ logging.getLogger("autogen.oai.client").setLevel(logging.CRITICAL)
 from application.use_cases.autogen_runtime import run_autogen_chat
 from application.dependency_injection import DependencyInjector
 from application.enums.llm_provider import LLMProvider
-from utils.planner_helpers import last_planner_response
 
 
 def main() -> None:

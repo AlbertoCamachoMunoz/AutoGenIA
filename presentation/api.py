@@ -13,7 +13,6 @@ except ModuleNotFoundError:  # la librería es opcional si sólo se usa CLI
 from application.enums.llm_provider import LLMProvider
 from application.dependency_injection import DependencyInjector
 from application.use_cases.autogen_runtime import run_autogen_chat
-from utils.planner_helpers import last_planner_response
 
 # ── flask ───────────────────────────────────────────────
 app = Flask(__name__, static_folder="./front_app", static_url_path="")
@@ -41,20 +40,10 @@ def chat():
         deps = DependencyInjector.get_autogen_user_and_manager(llm_type)
         chat_result = run_autogen_chat(deps["user"], deps["manager"], prompt)
 
-        history = getattr(chat_result, "messages", []) or getattr(
-            chat_result, "chat_history", []
-        )
-
-        planner_dto = last_planner_response(history)
-
         return (
             jsonify(
                 status="success",
-                llm_type=llm_type.value,
-                result=planner_dto.content,
-                planner_status=planner_dto.status.name,
-                planner_message=planner_dto.message,
-                trace=history,
+                chat_result
             ),
             200,
         )
