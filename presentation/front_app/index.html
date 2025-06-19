@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,12 +8,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/styles.css">
 </head>
+
 <body>
     <div class="container text-center">
         <!-- ─────────────── Título y selector de LLM ─────────────── -->
         <div class="title">
             <div class="dropdown">
-                <button class="menu-btn dropdown-toggle" id="llmDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="menu-btn dropdown-toggle" id="llmDropdown" data-bs-toggle="dropdown"
+                    aria-expanded="false">
                     LLM Studio
                 </button>
                 <ul class="dropdown-menu">
@@ -22,41 +25,132 @@
             </div>
             <h3 class="mt-4">¿En qué puedo ayudarte?</h3>
         </div>
-
+        <div class="header-buttons header-buttons-vertical">
+            <button class="tech-btn info-btn" id="openInfoModal" type="button">
+                ¿Qué hace el agente?
+            </button>
+            <button class="tech-btn info-btn" id="openInstructionsModal" type="button">
+                ¿Cómo ejecutar la aplicación?
+            </button>
+        </div>
         <!-- ─────────────── Input del chat ─────────────── -->
         <div class="chat-container">
-            <input type="text" id="chatInput" class="form-control chat-input" placeholder="Pregunta lo que quieras…">
+            <input type="text" id="chatInput" class="form-control chat-input" placeholder="" readonly>
         </div>
 
         <!-- ─────────────── Acciones rápidas + descripción ─────────────── -->
         <div class="quick-actions">
             <p>
-                Soy un agente conversacional con superpoderes: busco en Wikipedia, traduzco y doy formato bonito a las
-                respuestas, y puedo enviar por correo el resultado donde me digas. Juega con los ejemplos o dispara tu
-                propia pregunta.
+                Soy un asistente inteligente capaz de buscar y recopilar productos de la tienda
+                (https://www.thefansofmagicstore.com/) online a partir de sus URLs.
+                Extraigo precios, descripciones y códigos SKU utilizando técnicas avanzadas de scraping web, y presento
+                los resultados de forma estructurada y editable.
+                Si incluyes una dirección de email en tu consulta, recibirás automáticamente la información extraída
+                directamente en tu correo electrónico.
             </p>
             <button class="action-btn"
-                    data-prompt='busca Italia en la wikipedia, traduce el texto al ingles y forma un json como este {"lang": "EN", "content":"texto traducido"} y enviala por correo al email c4max0@gmail.com'>
-                🇮🇹 Italia → 📧
-            </button>
-            <button class="action-btn"
-                    data-prompt='busca Python en la wikipedia, traduce al español y mándame el resumen a correo ejemplo@correo.com'>
-                🐍 Python → ES
-            </button>
-            <button class="action-btn"
-                    data-prompt='encuentra información sobre la Luna en la wikipedia, tradúcela al francés y envíala a demo@mail.com'>
-                🌙 Lune → FR
-            </button>
-            <button class="action-btn"
-                    data-prompt='resume la biografía de Albert Einstein desde wikipedia, tradúcela al alemán y envíala a prueba@correo.com'>
-                🧠 Einstein → DE
+                data-prompt='{ "shops": [{"url": "https://www.thefansofmagicstore.com/", "selector_price":"ins .woocommerce-Price-amount bdi","selector_description":"h3.heading-title.product-name a","selector_sku":{"tag":"a","attribute":"data-product_sku"}}],"langs":[{"lang":"EN"}],"email":"usuario@ejemplo.com"}'>
+                🐍 thefansofmagicstore.com
             </button>
         </div>
 
         <div id="result" class="mt-4"></div>
     </div>
 
+
+    <!-- ─────────────── Modal de información ─────────────── -->
+    <div class="tech-modal-overlay" id="modalOverlay" style="display:none;">
+        <div class="tech-modal-content">
+            <button class="close-btn" id="closeInfoModal" aria-label="Cerrar">&times;</button>
+            <h2>¿Qué tipo de aplicación es?</h2>
+            <p>
+                Esta aplicación es un <strong>Agente Inteligente impulsado por modelos LLM (Large Language
+                    Models)</strong> de última generación. Actualmente, utiliza el modelo
+                <b>Hermes-2-Pro-Llama-3-8B</b>, que ha sido entrenado para comprender instrucciones complejas y ejecutar
+                funciones externas <b>(function calling)</b> de manera autónoma.<br><br>
+                Permite la interacción conversacional avanzada, así como la automatización de procesos como el scraping
+                web, procesamiento y formateo de datos, y envío de correos electrónicos.<br><br>
+                El agente puede ejecutarse en local, siendo compatible con plataformas que exponen una API LLM, como
+                <b>LM Studio</b> u <b>Ollama</b>.
+            </p>
+            <h2>¿Qué hace esta aplicación?</h2>
+            <p>
+                Esta aplicación ha sido desarrollada como un sistema profesional de scraping web especializado, con el
+                objetivo de demostrar capacidades técnicas avanzadas para procesos automatizados de extracción de
+                información y envío de resultados por correo electrónico.<br><br>
+                <strong>Actualmente, la aplicación realiza las siguientes funciones:</strong>
+            </p>
+            <ul>
+                <li>Scrapea la web <a href="https://www.thefansofmagicstore.com" target="_blank" rel="noopener"
+                        style="color:#30d2f6;">thefansofmagicstore.com</a> para extraer productos, precios y códigos SKU
+                    mediante técnicas robustas de análisis estructural HTML.</li>
+                <li>Permite visualizar los resultados de forma editable y exportarlos en formato tabla o CSV, simulando
+                    una experiencia tipo "Excel" en entorno web.</li>
+                <li>Si se proporciona una dirección de correo electrónico en la consulta, la información extraída se
+                    envía automáticamente por email utilizando un servicio SMTP profesional.</li>
+                <li>Actualmente, los emails generados se dirigen a <a href="https://mailtrap.io/" target="_blank"
+                        rel="noopener" style="color:#30d2f6;">Mailtrap.io</a>, lo que permite testear el correcto
+                    funcionamiento del sistema de envío sin afectar a destinatarios reales.</li>
+            </ul>
+            <p>
+                El sistema ha sido diseñado para ser fácilmente extensible, permitiendo en futuras versiones la
+                generalización del scraping a cualquier sitio web con configuraciones personalizadas.<br><br>
+                <strong>Este proyecto es una demostración técnica con enfoque profesional, orientada a procesos de
+                    automatización, extracción masiva de datos y sistemas de mensajería empresarial.</strong>
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal de instrucciones -->
+    <div class="tech-modal-overlay" id="instructionsModalOverlay" style="display:none;">
+        <div class="tech-modal-content">
+            <button class="close-btn" id="closeInstructionsModal" aria-label="Cerrar">&times;</button>
+            <h2>Instrucciones de Ejecución</h2>
+            <ol>
+                <li>
+                    <strong>Ejecutar un servidor LLM compatible:</strong><br>
+                    Inicia un servidor de modelos LLM en local utilizando <b>LM Studio</b> o <b>Ollama</b>.
+                    Asegúrate de que la API esté expuesta y accesible desde el sistema donde se despliega la aplicación.
+                </li>
+                <li>
+                    <strong>Cargar el modelo requerido:</strong><br>
+                    Selecciona y carga el modelo <b>Hermes-2-Pro-Llama-3-8B</b> en el servidor LLM.
+                    <u>No se garantiza el funcionamiento con otros modelos.</u>
+                </li>
+                <li>
+                    <strong>Configuración del entorno:</strong><br>
+                    Es necesario tener <b>Python 3.10 o superior</b> y <b>pip</b> correctamente instalados.<br>
+                    Instala las dependencias ejecutando: <br>
+                    <code>pip install -r requirements.txt</code>
+                </li>
+                <li>
+                    <strong>Ejecutar la API Flask:</strong><br>
+                    Inicia el backend mediante el comando:<br>
+                    <code>python -m presentation.api</code>
+                    <br>La aplicación estará disponible por defecto en <b>http://127.0.0.1:5000</b>
+                </li>
+                <li>
+                    <strong>Configuración de correo electrónico:</strong><br>
+                    El sistema está actualmente integrado con <b>Mailtrap.io</b> para pruebas de envío de emails.<br>
+                    Si deseas utilizar un proveedor SMTP propio, modifica los parámetros de conexión en la configuración
+                    del backend.
+                </li>
+            </ol>
+            <h3>Requisitos mínimos</h3>
+            <ul>
+                <li>CPU de 4 núcleos, 16 GB RAM recomendados para modelos grandes.</li>
+                <li>Conexión de red local para la comunicación entre la aplicación y el servidor LLM.</li>
+                <li>Navegador web moderno (Chrome, Firefox, Edge...)</li>
+                <li>Sistema operativo: Windows, Linux o macOS</li>
+            </ul>
+            <p>
+                <b>Nota:</b> El correcto funcionamiento depende de que el modelo esté cargado y la API LLM expuesta.<br>
+                Para un uso profesional se recomienda equipo con GPU dedicada y conexión segura.
+            </p>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/script.js"></script>
 </body>
+
 </html>

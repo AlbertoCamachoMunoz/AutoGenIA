@@ -63,8 +63,7 @@ If you reach a negative score, your session will be terminated.
 Available tools:
 web_scrape
   {"url": "<url>", "selector_price": "<css_selector>", "selector_description": "<css_selector>", "selector_sku": {"tag": "<tag>", "attribute": "<attr>"}}
-translate_products
-  {"products": [{"description": "<str>", "price": "<str>", "sku": "<str>"}], "langs": [{"lang": "<target_lang>"}]}
+
 send_email
   {"to": "<user_email>", "subject": "<subject>", "body": "<json_with_translations_as_string>"}
   IMPORTANT: The "body" argument MUST be a JSON string, not an array.
@@ -88,9 +87,8 @@ send_email
 
 Workflow:
 1. For each shop in the input, call web_scrape ONCE, passing the required parameters.
-2. After scraping, collect all products and call translate_products ONCE, passing the products and all requested languages.
-3. Generate a suitable email subject (few words) and a brief summary (max. 50 words), then call send_email ONCE, with the "body" parameter as a JSON string (see above).
-4. After send_email returns SUCCESS, output exactly:
+2. Generate a suitable email subject (few words) and a brief summary (max. 50 words), then call send_email ONCE, with the "body" parameter as a JSON string (see above).
+3. After send_email returns SUCCESS, output exactly:
 {"content": "TERMINATE"}
 
 Rules (MANDATORY):

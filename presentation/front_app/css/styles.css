@@ -1,203 +1,419 @@
-/* Estilo general */
+/* === ESTILO GLOBAL TECH ELEGANTE === */
+
 body {
-    background-color: #212121;
-    color: white;
-    font-family: Arial, sans-serif;
-    text-align: center;
+    background: linear-gradient(135deg, #23272f 0%, #191b20 100%);
+    color: #e6eaf3;
+    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+    min-height: 100vh;
     margin: 0;
+    padding: 0;
 }
 
-.title{
-    margin-top: 15%;
-}
-/* Menú de arriba a la izquierda */
-.menu-btn {
-    position: absolute;
-    top: 2px;
-    left: 155px;
-    background-color: #333;
-    color: white;
-    border-color: #666;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
+.container.text-center {
+    padding-top: 4vh;
 }
 
-.dropdown-menu{
-    position: absolute;
-    top: 5px !important;
-    left: 10px;
-    background-color: #333;
-    color: white;
-    border-color: #666;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
+/* --- Cabecera y Selector LLM --- */
+.title h3 {
+    color: #7de6ff;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    margin-bottom: 1.6rem;
+    text-shadow: 0 2px 8px #21242b80;
 }
 
-.dropdown-item{
-    color: white;
+.menu-btn,
+.dropdown-menu {
+    background: #23272f;
+    border: 1.2px solid #313945;
+    color: #70e7ff;
+    border-radius: 9px;
+    box-shadow: 0 2px 10px 0 rgba(36,44,64,0.13);
+    font-size: 15px;
+    font-weight: 500;
+    transition: background 0.14s, color 0.14s;
+}
+.menu-btn:hover,
+.dropdown-item:hover,
+.dropdown-menu.show {
+    background: #1a1c22 !important;
+    color: #44f3f7 !important;
+}
+.dropdown-item {
+    color: #8ee7ff;
+}
+.dropdown-item.active, .dropdown-item:active {
+    background: #21242b;
+    color: #44f3f7;
 }
 
-.menu-btn:hover {
-    background-color: #555;
-}
-
-/* Contenedor del chat */
+/* --- Input del chat --- */
 .chat-container {
-    position: relative;
-    display: inline-block;
-    width: 50%;
-    margin-top: 2%;
+    width: 60%;
+    margin: 2% auto 0 auto;
 }
-
-/* Estilo del input de texto */
 .chat-input {
     width: 100%;
-    padding: 12px;
-    border-radius: 20px;
-    border: 1px solid #444;
-    background-color: #222;
-    color: white;
-    font-size: 16px;
-    padding-right: 50px; /* Espacio para el botón de micrófono */
+    padding: 15px 18px;
+    border-radius: 17px;
+    border: 1.5px solid #313945;
+    background: #23272f;
+    color: #e6eaf3;
+    font-size: 1.07rem;
+    outline: none;
+    box-shadow: 0 2px 9px 0 #14161b30 inset;
+    transition: border 0.18s;
+}
+.chat-input:focus {
+    border: 1.7px solid #3de2f3;
+    background: #232730;
 }
 
-/* Botón del micrófono */
-.mic-button {
+/* --- PANEL/CAJA DE DESCRIPCIÓN Y BOTONES RÁPIDOS (tipo quick-actions) --- */
+.quick-actions {
+    margin-top: 2.2rem;
+    background: linear-gradient(120deg, #232a34 80%, #252e39 100%);
+    border-radius: 18px;
+    padding: 1.6rem 2rem 1.2rem 2rem;
+    border: 1.5px solid #323842;
+    box-shadow: 0 3px 18px 0 rgba(36,44,64,0.19), 0 1.5px 3px 0 rgba(0,0,0,0.10) inset;
+    width: 70%;
+    min-width: 300px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #d2f6fa;
+    font-size: 1.08rem;
+    font-weight: 400;
+    text-align: center;
+    line-height: 1.7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.quick-actions p {
+    margin-bottom: 1.1rem;
+    color: #b3e7f7;
+    font-size: 1.08rem;
+    font-weight: 400;
+    letter-spacing: 0.1px;
+    text-shadow: 0 1px 3px #00000040;
+}
+
+/* --- BOTONES rápidos dentro de quick-actions --- */
+.action-btn {
+    background: linear-gradient(100deg, #232a34 60%, #232e39 100%);
+    color: #70e7ff;
+    border: 1.2px solid #2dc2e7;
+    padding: 0.70rem 1.32rem;
+    margin: 0.28rem;
+    border-radius: 9px;
+    font-size: 1.01rem;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    box-shadow: 0 1px 6px 0 #15181f48;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, border 0.14s;
+}
+.action-btn:hover {
+    background: #181a20;
+    color: #48f8ff;
+    border-color: #3de2f3;
+}
+
+/* =========================
+   TABLA "EXCEL PRO TECH"
+   ========================= */
+
+.tech-table {
+    width: 80%;
+    margin: 2rem auto;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #23272f;
+    border-radius: 18px;
+    box-shadow: 0 2px 24px 0 rgba(0,0,0,0.26), 0 0.5px 1.5px 0 rgba(0,0,0,0.10);
+    overflow: hidden;
+    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+}
+
+.tech-table th,
+.tech-table td {
+    padding: 0.85rem 1.25rem;
+    text-align: left;
+    border: none;
+}
+
+.tech-table thead th {
+    background: linear-gradient(90deg, #21242b 60%, #27303c 100%);
+    color: #70e7ff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-bottom: 2.5px solid #3de2f3;
+    border-top: none;
+    letter-spacing: 1px;
+}
+
+.tech-table tbody tr {
+    background: #24292f;
+    transition: background 0.20s;
+}
+
+.tech-table tbody tr:hover {
+    background: #2c323b;
+}
+
+.tech-table td {
+    color: #e6eaf3;
+    font-size: 1.01rem;
+    border-bottom: 1.5px solid #323842;
+}
+
+.tech-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.tech-table th:first-child,
+.tech-table td:first-child {
+    border-radius: 13px 0 0 13px;
+}
+
+.tech-table th:last-child,
+.tech-table td:last-child {
+    border-radius: 0 13px 13px 0;
+}
+
+.tech-table {
+    box-shadow: 0 8px 32px 0 rgba(36,44,64,0.19), 0 1.5px 3px 0 rgba(0,0,0,0.11) inset;
+    border: 1.5px solid #313945;
+}
+
+/* --- Botones debajo de la tabla --- */
+#copyTableBtn, #downloadCsvBtn {
+    background: linear-gradient(90deg, #21242b 60%, #27303c 100%);
+    color: #70e7ff;
+    border: 1.1px solid #3de2f3;
+    border-radius: 8px;
+    font-size: 1.02rem;
+    font-weight: 500;
+    padding: 0.44rem 1.12rem;
+    margin-left: 7px;
+    margin-right: 7px;
+    margin-top: 0.8rem;
+    box-shadow: 0 2px 12px 0 #1c212b40;
+    transition: background 0.16s, color 0.13s;
+}
+#copyTableBtn:hover, #downloadCsvBtn:hover {
+    background: #1a1c22;
+    color: #48f8ff;
+    border-color: #3de2f3;
+}
+
+#openInfoModal {
+    text-align: center !important;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+/* Mensajes de error, éxito, etc. adaptados a estilo tech */
+.alert-danger, .error-message {
+    background: linear-gradient(90deg, #4a1d25 80%, #2a0a0a 100%);
+    border: 1.4px solid #842029;
+    color: #fff;
+    border-radius: 13px;
+    font-size: 1.01rem;
+}
+.success-message, .alert-success {
+    background: linear-gradient(90deg, #23242d 90%, #232a33 100%);
+    color: #6cf7a8;
+    border: 1.3px solid #45c297;
+    border-radius: 13px;
+    font-size: 1.02rem;
+}
+.processing-message, .alert-info {
+    background: linear-gradient(90deg, #3de2f3 90%, #232a33 100%);
+    color: #232a33;
+    border: 1.3px solid #45c2e7;
+    border-radius: 13px;
+    font-size: 1.02rem;
+}
+
+/* Botones debajo de la tabla: centrados y con margen inferior */
+.tech-table-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 24px auto 36px auto; /* margen superior, centrado y margen inferior */
+}
+
+.tech-btn {
+    background: linear-gradient(90deg, #232f38 50%, #165a78 100%);
+    color: #88f8fc;
+    border: 1.5px solid #38e5f3;
+    border-radius: 10px;
+    padding: 10px 24px;
+    font-size: 1.06rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 3px 16px 0 rgba(20,33,46,0.11);
+    transition: background 0.18s, color 0.18s, box-shadow 0.15s;
+    outline: none;
+}
+
+.tech-btn:hover, .tech-btn:focus {
+    background: linear-gradient(90deg, #195a70 70%, #21e2fb 100%);
+    color: #0a2128;
+    box-shadow: 0 6px 20px 0 rgba(44,244,244,0.12);
+    border-color: #7cfaff;
+}
+
+@media (max-width: 900px) {
+    .container.text-center { padding-top: 1vh; }
+    .chat-container, .quick-actions { width: 95%; }
+    .tech-table { width: 98%; }
+}
+
+/* ========================
+   MODAL DE INFORMACIÓN APP
+   ======================== */
+.tech-modal-overlay {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(30, 38, 53, 0.80);
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+}
+
+.tech-modal-overlay[style*="display: flex"] {
+    display: flex !important;
+}
+
+.tech-modal-content {
+    background: linear-gradient(115deg, #23272f 80%, #284f62 100%);
+    color: #d7f7ff;
+    border-radius: 24px;
+    box-shadow: 0 6px 36px 0 rgba(30, 64, 97, 0.27), 0 1.5px 8px 0 rgba(0,0,0,0.13) inset;
+    border: 2px solid #2ff3fd;
+    padding: 36px 32px 28px 32px;
+    max-width: 540px;
+    width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    font-size: 1.06rem;
+    text-align: left;
+    animation: modalFadeIn 0.28s;
+}
+
+.tech-modal-content h2 {
+    color: #3de2f3;
+    margin-top: 0;
+    margin-bottom: 18px;
+    font-weight: 800;
+    font-size: 1.38rem;
+    letter-spacing: 0.5px;
+}
+
+.tech-modal-content ul {
+    margin: 12px 0 18px 0;
+    padding-left: 1.3em;
+}
+
+.tech-modal-content li {
+    margin-bottom: 9px;
+    color: #adebfa;
+    font-size: 1.01rem;
+}
+
+.tech-modal-content a {
+    text-decoration: underline;
+}
+
+.close-btn {
     position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 18px;
+    right: 22px;
     background: none;
     border: none;
-    color: white;
-    font-size: 20px;
+    color: #49efff;
+    font-size: 2.1rem;
+    font-weight: 600;
     cursor: pointer;
+    transition: color 0.18s;
+    z-index: 3;
+}
+.close-btn:hover, .close-btn:focus {
+    color: #fc0b75;
 }
 
-.mic-button:hover {
-    color: #ddd;
+/* ========== HEADER BUTTONS VERTICALES A LA DERECHA ========== */
+.header-buttons {
+    position: absolute;
+    top: 36px;
+    right: 42px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 14px;
+    z-index: 100;
+    margin: 0;
+    padding: 0;
 }
 
-/* Opciones rápidas */
-.quick-actions {
-    margin-top: 80px;
-    color: #ececec;
-    background-color: #0d0d0d60; /* negro */
-    border-radius: 20px;
-    padding: 10px;
-    text-align: center;
-    border: 1px solid white;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-    position: relative;
-    display: inline-block;
-    width: 50%;
-    margin-top: 2%;
-}
-
-.action-btn {
-    background-color: #333;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    margin: 5px;
-    border-radius: 5px;
+/* Estilo unificado y sin position absolute en los info-btn */
+.tech-btn.info-btn {
+    background: linear-gradient(90deg, #1b303a 70%, #24c8e7 100%);
+    color: #8ce9ff;
+    border: 1.5px solid #29e4f7;
+    border-radius: 10px;
+    padding: 11px 32px 11px 22px;
+    font-size: 1.09rem;
+    font-weight: 600;
     cursor: pointer;
-    font-size: 14px;
+    box-shadow: 0 3px 14px 0 rgba(20,33,46,0.09);
+    transition: background 0.18s, color 0.18s, box-shadow 0.15s, border-color 0.15s;
+    outline: none;
+    min-width: 290px;
+    text-align: right;
+    margin: 0;
+    position: static;
 }
 
-.action-btn:hover {
-    background-color: #555;
+.tech-btn.info-btn:hover, .tech-btn.info-btn:focus {
+    background: linear-gradient(90deg, #25a6c2 70%, #0efaff 100%);
+    color: #20232a;
+    border-color: #b8fcf5;
 }
 
-/* Resultados */
-#result {
-    margin-top: 20px;
-    font-size: 18px;
+@media (max-width: 900px) {
+    .header-buttons {
+        position: static;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 0;
+        right: 0;
+        top: 0;
+        margin: 16px 0 10px 0;
+    }
+    .tech-btn.info-btn {
+        min-width: 0;
+        width: 100%;
+        font-size: 1.01rem;
+        text-align: center;
+        padding: 11px 0;
+    }
 }
 
-/* Mensajes de error (colores rojo oscuro) */
-.error-message {
-    color: #FFFFFF;
-    background-color: #dc3545; /* Rojo */
-    padding: 10px;
-    border-radius: 5px;
-    margin-top: 10px;
-    font-weight: bold;
-    text-align: center;
-    border: 1px solid #b02a37;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-/* Mensajes de éxito (colores negros) */
-.success-message {
-    color: #ececec;
-    background-color: #0d0d0d; /* negro */
-    border-radius: 20px;
-    padding: 10px;
-    margin-top: 10px;
-    font-weight: bold;
-    text-align: center;
-    border: 1px solid white;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-/* Mensajes de estado/procesamiento (colores naranjas) */
-.processing-message {
-    color: #212529;
-    background-color: #ffc107; /* Amarillo */
-    padding: 10px;
-    border-radius: 5px;
-    margin-top: 10px;
-    font-weight: bold;
-    text-align: center;
-    border: 1px solid #d39e00;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-/* ─────────────── Panel de depuración ─────────────── */
-.debug-toggle{
-    position:fixed;
-    bottom:16px;
-    right:16px;
-    background:#333;
-    color:#fff;
-    border:1px solid #666;
-    padding:6px 12px;
-    border-radius:5px;
-    font-size:12px;
-    z-index:1031;
-    opacity:.85;
-}
-
-.debug-toggle:hover{
-    background:#555;
-}
-
-.debug-panel{
-    position:fixed;
-    bottom:60px;
-    right:16px;
-    width:45vw;
-    max-width:500px;
-    max-height:40vh;
-    background:#0d0d0d;
-    color:#ececec;
-    border:1px solid #666;
-    border-radius:8px;
-    padding:10px;
-    overflow-y:auto;
-    display:none;
-    z-index:1030;
-    box-shadow:0 0 10px rgba(0,0,0,.6);
-}
-
-.debug-panel pre{
-    margin:0;
-    white-space:pre-wrap;
-    font-size:12px;
-    font-family:"Courier New", monospace;
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-40px);}
+    to   { opacity: 1; transform: translateY(0);}
 }

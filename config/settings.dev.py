@@ -1,11 +1,10 @@
 import os
 
 # Configuración para LLM Studio
-LLM_STUDIO_API_URL = os.getenv("LLM_STUDIO_API_URL", "")
-LLM_STUDIO_API_KEY = os.getenv("LLM_STUDIO_API_KEY", "")
-LLM_STUDIO_DEFAULT_NAME = os.getenv("LLM_STUDIO_DEFAULT_NAME", "llm-studio")
+LLM_STUDIO_API_URL = os.getenv("LLM_STUDIO_API_URL", "http://localhost:1234/v1")
+LLM_STUDIO_API_KEY = os.getenv("LLM_STUDIO_API_KEY", "MI_TOKEN")
 LLM_STUDIO_DEFAULT_NAME = os.getenv("LLM_STUDIO_DEFAULT_NAME", "Hermes-2-Pro-Llama-3-8B")
-# LLM_STUDIO_DEFAULT_NAME = os.getenv("LLM_STUDIO_DEFAULT_NAME", "Hermes-3-Llama-3.1-8B") no me termina de convencer
+# LLM_STUDIO_DEFAULT_NAME = os.getenv("LLM_STUDIO_DEFAULT_NAME", "Hermes-3-Llama-3.1-8B")
 LLM_STUDIO_HEADERS = {
     "Content-Type": "application/json",
     "Authorization": f"Bearer {LLM_STUDIO_API_KEY}"

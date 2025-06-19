@@ -72,7 +72,7 @@ class DependencyInjector:
             DependencyInjector._wrapper_cache = [
                 # AgentAutoGenWrapper("wikipedia", WikipediaAgent, WikipediaAgent()),
                 AgentAutoGenWrapper("scraper", WebScraperAgent, WebScraperAgent()),
-                AgentAutoGenWrapper("email",     EmailAgent,     EmailAgent()),
+                # AgentAutoGenWrapper("email",     EmailAgent,     EmailAgent()),
             ]
         return DependencyInjector._wrapper_cache
 
@@ -125,7 +125,7 @@ class DependencyInjector:
         gchat = GroupChat(
             agents  = [planner] + wrappers,
             messages=[],
-            max_round=10,
+            max_round=4,
             speaker_selection_method="round_robin",
             allow_repeat_speaker=False,
             select_speaker_auto_llm_config=llm_cfg,
