@@ -1,6 +1,5 @@
-# infrastructure/agents/webscraper/dtos/webscraper_response_dto.py
-from dataclasses import dataclass
-from typing import List, Dict
+from dataclasses import dataclass, asdict
+from application.enums.status_code import StatusCode
 
 @dataclass
 class ProductResult:
@@ -10,6 +9,13 @@ class ProductResult:
 
 @dataclass
 class WebScraperResponseDTO:
-    products: List[ProductResult]
-    status: str
+    products: list  # List[ProductResult]
+    status: StatusCode
     message: str
+
+    def to_dict(self):
+        return {
+            "products": [asdict(p) for p in self.products],
+            "status": self.status.name if isinstance(self.status, StatusCode) else self.status,
+            "message": self.message,
+        }

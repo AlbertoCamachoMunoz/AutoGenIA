@@ -117,7 +117,7 @@ class WebScraperAgent(AgentInterface):
                 message="OK"
             )
 
-            set_last_json(content)
+            set_last_json(dto.to_dict())
             print("\n WebScraperAgent   ------  get_last_json:", get_last_json())
 
             return AgentAppResponse(
@@ -129,6 +129,7 @@ class WebScraperAgent(AgentInterface):
         except Exception as exc:
             print("EXCEPCIÓN en WebScraperAgent:", exc)
             print("\n WebScraperAgent con excepcion   ------  get_last_json:", get_last_json())
+            set_last_json(dto.to_dict())
             return AgentAppResponse(
                 content={"products": []},
                 status=StatusCode.ERROR,
