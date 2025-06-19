@@ -11,27 +11,31 @@ El resultado es un código **modular, escalable y fácil de mantener**.
 
 ### 📂 **Estructura del Proyecto**
 ```
-📂 AutoGenIA
-│───📂 application               # Reglas de negocio (DTOs, interfaces, casos de uso)
-│   │───📂 dtos                  
-│   │───📂 enums                 
-│   │───📂 factories             
-│   │───📂 interfaces            
-│   │───📂 use_cases             
-│───📂 buffer                     # Buffer thread‑safe compartido
-│───📂 config                     # Configuración global (API‑keys, rutas, …)
-│───📂 infrastructure             # Servicios externos concretos
-│   │───📂 autogen_adapters       # Wrappers → AutoGen
-│   │───📂 autogen_agents         # Planner + mapeos
-│   │───📂 agents                 # Agentes concretos (WebScraper, Email, Wikipedia…)
-│   │───📂 llms_providers         # Proveedores LLM (Gemini, LLM Studio)
-│───📂 presentation               # Capa de presentación
-│   │───📂 api                    # API REST (Flask)
-│   │───📂 cli                    # CLI interactiva
-│   │───📂 front_app              # Frontend (HTML + CSS + JS)
-│       │───📂 generated_audio    # (reservado futuro)
-│       │───📂 temp_uploads       # (reservado futuro)
-│───📂 utils                      # Utilidades (validadores, helpers…)
+<pre><code>
+📁 AutoGenIA
+│
+├── application                # Reglas de negocio (DTOs, interfaces, casos de uso)
+│   ├── dtos                   # Data Transfer Objects
+│   ├── enums                  # Enumeradores
+│   ├── factories              # Patrones Factory
+│   ├── interfaces             # Interfaces/abstracciones
+│   ├── use_cases              # Casos de uso
+│   ├── buffer                 # Buffer thread-safe compartido
+│   └── config                 # Configuración global (API keys, rutas, ...)
+│
+├── infrastructure             # Servicios externos concretos
+│   ├── autogen_adapters       # Wrappers → AutoGen
+│   ├── agents                 # Agentes concretos (WebScraper, Email, Wikipedia...)
+│   └── llms_providers         # Proveedores LLM (Gemini, LLM Studio)
+│
+├── presentation               # Capa de presentación
+│   ├── api                    # API REST (Flask)
+│   ├── cli                    # CLI interactiva
+│   └── front_app              # Frontend (HTML + CSS + JS)
+│       ├── generated_audio    # (reservado futuro)
+│       ├── temp_uploads       # (reservado futuro)
+│       └── utils              # Utilidades (validadores, helpers…)
+</code></pre>
 ```
 
 ---
