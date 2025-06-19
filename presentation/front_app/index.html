@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatIA</title>
+    <title>AutoGen_IA</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/styles.css">
 </head>
@@ -33,7 +33,10 @@
                 ¿Cómo ejecutar la aplicación?
             </button>
             <button class="tech-btn info-btn" id="openReadmeModal" type="button">
-                📐 Arquitectura & README
+                Arquitectura & README
+            </button>
+            <button class="tech-btn info-btn" id="openChallengesModal" type="button">
+                Retos y Aprendizaje
             </button>
         </div>
         <!-- ─────────────── Input del chat ─────────────── -->
@@ -158,6 +161,37 @@
             <div id="readmeContent"></div>
         </div>
     </div>
+
+    <div class="tech-modal-overlay" id="challengesModalOverlay" style="display:none;">
+        <div class="tech-modal-content" style="max-width: 700px; width: 90vw; min-width:400px;">
+            <button class="close-btn" id="closeChallengesModal" aria-label="Cerrar">&times;</button>
+            <h2 style="text-align:center; color:#3de2f3; font-weight:800;">Retos y Aprendizaje</h2>
+            <blockquote
+                style="border-left: 4px solid #3de2f3; background: #26303b; color:#b6ebfa; padding: 1.1em 1.5em; font-size:1.08rem;">
+                Implementar una aplicación basada en agentes LLM AutoGen ha supuesto tanto un <strong>reto
+                    técnico</strong> como una gran satisfacción profesional. El proceso no solo ha consistido en
+                orquestar agentes inteligentes capaces de ejecutar tareas de scraping, análisis y mensajería, sino en
+                integrarlos dentro de una arquitectura <strong>Clean Architecture (Onion)</strong>, empleada en
+                proyectos backend robustos, escalables y de mantenimiento sencillo.<br><br>
+                Uno de los principales desafíos ha sido <strong>seleccionar el modelo LLM adecuado</strong>. No todos
+                los modelos actuales son aptos para workflows de function calling avanzado: es fundamental contar con un
+                modelo fine-tuned, capaz de comprender, invocar funciones externas y devolver respuestas estructuradas,
+                requisitos imprescindibles en sistemas de agentes autónomos.<br><br>
+                Otro reto considerable ha sido "domesticar" el modelo para obtener respuestas consistentes y precisas,
+                evitando que divague o se salga del flujo funcional previsto. El diseño de prompts, el ajuste de los
+                flujos de mensajes y el control de los contextos han sido aspectos clave para lograr que el agente
+                ejecute sus tareas con fiabilidad y formato profesional.<br><br>
+                Más allá de la parte técnica, la experiencia ha sido un verdadero ejercicio de integración: desde la
+                gestión avanzada de dependencias hasta el diseño de sistemas modulares, pasando por la resolución de
+                casos reales de automatización, todo ello contribuyendo a ampliar mi expertise en <strong>IA aplicada y
+                    arquitecturas modernas para backend</strong>.<br><br>
+                En resumen, este proyecto no solo ha supuesto una oportunidad de aprendizaje en el área de LLM y agentes
+                inteligentes, sino que ha reforzado mi capacidad para abordar retos complejos y aportar soluciones
+                innovadoras dentro de arquitecturas de alto nivel.
+            </blockquote>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/script.js"></script>
 </body>

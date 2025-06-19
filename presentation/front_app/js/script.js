@@ -275,4 +275,15 @@ document.addEventListener("DOMContentLoaded", function () {
         return md;
     }
 
+    // Modal de retos y aprendizaje
+    document.getElementById('openChallengesModal').onclick = function () {
+        document.getElementById('challengesModalOverlay').style.display = 'flex';
+    };
+    document.getElementById('closeChallengesModal').onclick = function () {
+        document.getElementById('challengesModalOverlay').style.display = 'none';
+    };
+    document.getElementById('challengesModalOverlay').onclick = function (e) {
+        if (e.target === this) this.style.display = 'none';
+    };
+
 });
