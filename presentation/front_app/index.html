@@ -32,6 +32,9 @@
             <button class="tech-btn info-btn" id="openInstructionsModal" type="button">
                 ¿Cómo ejecutar la aplicación?
             </button>
+            <button class="tech-btn info-btn" id="openReadmeModal" type="button">
+                📐 Arquitectura & README
+            </button>
         </div>
         <!-- ─────────────── Input del chat ─────────────── -->
         <div class="chat-container">
@@ -147,6 +150,12 @@
                 <b>Nota:</b> El correcto funcionamiento depende de que el modelo esté cargado y la API LLM expuesta.<br>
                 Para un uso profesional se recomienda equipo con GPU dedicada y conexión segura.
             </p>
+        </div>
+    </div>
+    <div class="tech-modal-overlay" id="readmeModalOverlay" style="display:none;">
+        <div class="tech-modal-content readme-style">
+            <button class="close-btn" id="closeReadmeModal" aria-label="Cerrar">&times;</button>
+            <div id="readmeContent"></div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -417,3 +417,61 @@ body {
     from { opacity: 0; transform: translateY(-40px);}
     to   { opacity: 1; transform: translateY(0);}
 }
+
+.readme-style {
+    max-width: 950px;                /* Antes: 700px */
+    width: 90vw;                     /* Flexible en ventanas grandes */
+    margin: auto;
+    background: linear-gradient(120deg, #232b35 80%, #232a2f 100%);
+    /* Fondo muy oscuro, elegante y uniforme */
+    padding: 2.5em 3.1em;
+    font-family: "Segoe UI", "Roboto", "Arial", sans-serif;
+    color: #e4f3ff;                  /* Texto claro */
+    box-shadow: 0 2px 32px 0 rgba(0,0,0,0.18);
+    overflow-y: auto;
+    max-height: 90vh;
+    border: 2px solid #3de2f3;
+}
+
+.readme-style code, .readme-style pre {
+    background: #22282f;
+    color: #48faff;
+}
+
+.readme-style h1, .readme-style h2, .readme-style h3 {
+    border-bottom: 1px solid #eee;
+    margin-top: 1.5em;
+    margin-bottom: .7em;
+    font-weight: 600;
+}
+.readme-style code, .readme-style pre {
+    background: #f6f8fa;
+    color: #c7254e;
+    padding: 2px 6px;
+    border-radius: 5px;
+    font-family: "Fira Mono", "Consolas", monospace;
+    font-size: 95%;
+}
+.readme-style pre {
+    padding: 10px;
+    overflow-x: auto;
+}
+.readme-style ul, .readme-style ol {
+    margin-left: 1.3em;
+    margin-bottom: 1em;
+}
+.readme-style table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 1em;
+}
+.readme-style th, .readme-style td {
+    border: 1px solid #e1e4e8;
+    padding: 6px 13px;
+}
+.readme-style blockquote {
+    border-left: 4px solid #d0d7de;
+    padding-left: 1em;
+    color: #6a737d;
+    margin: 1em 0;
+}

@@ -59,7 +59,16 @@ def chat():
             jsonify(status="error", message="Internal server error", detail=str(exc)),
             500,
         )
-
+    
+@app.route("/readme", methods=["GET"])
+def download_readme():
+    """Devuelve el contenido del README.md en texto plano"""
+    readme_path = Path(__file__).parent.parent / "README.md"
+    if not readme_path.exists():
+        return jsonify({"status": "error", "message": "README.md not found"}), 404
+    with open(readme_path, encoding="utf-8") as f:
+        content = f.read()
+    return jsonify({"status": "success", "content": content})
 
 if __name__ == "__main__":
     HOST, PORT = "127.0.0.1", 5000

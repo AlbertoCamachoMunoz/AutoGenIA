@@ -41,43 +41,47 @@ document.addEventListener("DOMContentLoaded", function () {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt: prompt, llm_type: currentLlm })
         })
-        .then(resp => resp.json())
-        .then(data => {
-            sending = false;
-            chatInput.disabled = false;
-
-            // --- EXITO ---
-            if (data.status === "success" && data.data && data.data.status === "SUCCESS" && Array.isArray(data.data.products)) {
-                renderProductsTable(data.data.products, data.data.message || "Operación realizada correctamente.");
-            }
-            // --- ERROR DEVUELTO POR BACKEND ---
-            else if (data.status === "success" && data.data && data.data.status === "ERROR") {
-                renderError(data.data.message || "Error de procesamiento.");
-            }
-            // --- ERROR HTTP ---
-            else if (data.status === "error") {
-                renderError(data.message || "Error de comunicación con el servidor");
-            }
-            // --- CUALQUIER OTRO CASO ---
-            else {
+            .then(resp => resp.json())
+            .then(data => {
+                sending = false;
+                chatInput.disabled = false;
+                // Añade aquí:
+                console.log("Respuesta recibida del backend:", data);
+                // --- EXITO ---
+                if (data.status === "success" && data.data && data.data.status === "SUCCESS" && Array.isArray(data.data.products)) {
+                    renderProductsTable(data.data.products, data.data.message || "Operación realizada correctamente.");
+                }
+                // --- ERROR DEVUELTO POR BACKEND ---
+                else if (data.status === "success" && data.data && data.data.status === "ERROR") {
+                    renderError(data.data.message || "Error de procesamiento.");
+                }
+                // --- ERROR HTTP ---
+                else if (data.status === "error") {
+                    renderError(data.message || "Error de comunicación con el servidor");
+                }
+                // --- CUALQUIER OTRO CASO ---
+                else {
+                    renderError("Error de comunicación con el servidor");
+                }
+            })
+            .catch(err => {
+                sending = false;
+                chatInput.disabled = false;
                 renderError("Error de comunicación con el servidor");
-            }
-        })
-        .catch(err => {
-            sending = false;
-            chatInput.disabled = false;
-            renderError("Error de comunicación con el servidor");
-        });
+            });
     }
 
     function renderProductsTable(products, successMsg) {
         // Cabecera
-        let html = `<em>${successMsg}</em>
+        let html = `
         <div class="excel-table-container mt-3">
-        <div>Datos scrappeados</div>
+        
 
         <table id="tablaProductos" class="tech-table">
             <thead>
+                <tr>
+                    <th>Datos scrapeados</th>
+                </tr>
                 <tr>
                     <th>Descripción</th>
                     <th>Precio</th>
@@ -185,26 +189,90 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Modal de información
-    document.getElementById('openInfoModal').onclick = function() {
+    document.getElementById('openInfoModal').onclick = function () {
         document.getElementById('modalOverlay').style.display = 'flex';
     };
-    document.getElementById('closeInfoModal').onclick = function() {
+    document.getElementById('closeInfoModal').onclick = function () {
         document.getElementById('modalOverlay').style.display = 'none';
     };
-    document.getElementById('modalOverlay').onclick = function(e) {
-        if(e.target === this) this.style.display = 'none';
+    document.getElementById('modalOverlay').onclick = function (e) {
+        if (e.target === this) this.style.display = 'none';
     };
 
     // Modal de instrucciones
-    document.getElementById('openInstructionsModal').onclick = function() {
+    document.getElementById('openInstructionsModal').onclick = function () {
         document.getElementById('instructionsModalOverlay').style.display = 'flex';
     };
-    document.getElementById('closeInstructionsModal').onclick = function() {
+    document.getElementById('closeInstructionsModal').onclick = function () {
         document.getElementById('instructionsModalOverlay').style.display = 'none';
     };
-    document.getElementById('instructionsModalOverlay').onclick = function(e) {
-        if(e.target === this) this.style.display = 'none';
+    document.getElementById('instructionsModalOverlay').onclick = function (e) {
+        if (e.target === this) this.style.display = 'none';
     };
 
+    // Modal README/Arquitectura
+    document.getElementById('openReadmeModal').onclick = function () {
+        const modal = document.getElementById('readmeModalOverlay');
+        const contentDiv = document.getElementById('readmeContent');
+        contentDiv.innerHTML = '<em>Cargando README...</em>';
+        modal.style.display = 'flex';
+
+        fetch('/readme')
+            .then(resp => resp.json())
+            .then(data => {
+                if (data.status === "success" && data.content) {
+                    contentDiv.innerHTML = renderMarkdownToHtml(data.content);
+                } else {
+                    contentDiv.innerHTML = '<div class="alert alert-danger">No se pudo cargar el README.md</div>';
+                }
+            })
+            .catch(() => {
+                contentDiv.innerHTML = '<div class="alert alert-danger">No se pudo cargar el README.md</div>';
+            });
+    };
+    document.getElementById('closeReadmeModal').onclick = function () {
+        document.getElementById('readmeModalOverlay').style.display = 'none';
+    };
+    document.getElementById('readmeModalOverlay').onclick = function (e) {
+        if (e.target === this) this.style.display = 'none';
+    };
+
+    /**
+     * Renderiza markdown a HTML básico compatible con estilos .readme-style
+     */
+    function renderMarkdownToHtml(md) {
+        // Transforma cabeceras
+        md = md.replace(/^### (.*)$/gm, '<h3>$1</h3>')
+            .replace(/^## (.*)$/gm, '<h2>$1</h2>')
+            .replace(/^# (.*)$/gm, '<h1>$1</h1>');
+        // Bold, italics, code y blockquotes básicos
+        md = md.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+            .replace(/\*(.*?)\*/g, '<i>$1</i>')
+            .replace(/`([^`\n]+)`/g, '<code>$1</code>')
+            .replace(/^> (.*)$/gm, '<blockquote>$1</blockquote>');
+        // Lists
+        md = md.replace(/^\s*[-*+] (.*)$/gm, '<li>$1</li>');
+        // Ordered lists
+        md = md.replace(/^\s*\d+\. (.*)$/gm, '<li>$1</li>');
+        // Tables (simplificada)
+        md = md.replace(/^\|(.+)\|\n\|([-:\s|]+)\|\n((?:\|.*\|\n)+)/gm, function (_, head, sep, rows) {
+            var ths = head.split('|').map(e => '<th>' + e.trim() + '</th>').join('');
+            var trs = rows.trim().split('\n').map(r => {
+                var tds = r.replace(/^\|/, '').replace(/\|$/, '').split('|').map(e => '<td>' + e.trim() + '</td>').join('');
+                return '<tr>' + tds + '</tr>';
+            }).join('');
+            return `<table class="readme-table"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
+        });
+        // Paragraphs
+        md = md.replace(/\n{2,}/g, '</p><p>');
+        md = `<p>${md}</p>`;
+        // Unordered/ordered lists cleanup
+        md = md.replace(/(<\/li>\s*)+(?!<li>)/g, '</li></ul>')
+            .replace(/(<li>)/g, '<ul>$1')
+            .replace(/(<ul><ul>)/g, '<ul>')
+            .replace(/<\/ul><\/ul>/g, '</ul>');
+        // Clean up double <ul>s
+        return md;
+    }
 
 });
