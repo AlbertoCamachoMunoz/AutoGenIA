@@ -5,7 +5,7 @@ from application.dtos.agent_app_request import AgentAppRequest
 from application.dtos.agent_app_response import AgentAppResponse
 from application.interfaces.llm_interface import LLMInterface
 from application.enums.status_code import StatusCode
-from infrastructure.autogen_agents.shared_buffer import set_last_json
+from infrastructure.autogen_agents.shared_buffer import get_last_json, set_last_json
 from infrastructure.agents.translator.dtos.translator_request_dto import TranslatorRequestDTO
 from infrastructure.agents.translator.dtos.translator_response_dto import TranslatorResponseDTO, ProductTranslated
 from infrastructure.agents.translator.mappers.translator_mapper import TranslatorMapper
@@ -74,7 +74,8 @@ class TranslatorAgent(AgentInterface):
         return {
             "config_list": [{
                 "model": self.provider.get_model_name(),
-                "base_url": "http://localhost:1234/v1/chat/completions",# self.provider.get_base_url(),
+                #"base_url": "http://localhost:1234/v1",# self.provider.get_base_url_for_agent(),
+                "base_url": self.provider.get_base_url_for_agent(),
                 "api_key": self.provider.get_api_key(),
             }],
             "temperature": 0.0,
@@ -141,11 +142,8 @@ class TranslatorAgent(AgentInterface):
                     response = self.provider.send_data(llm_app_request)
                     print("---------------------------   Respuesta del LLMAppResponse: ---------------------------------")
                     print(response)
-                    print(vars(response))
-                    print(response.__dict__)
-                    print(dir(response))
-                    print(response.choices[0].message.content)
                     print("---------------------------   Respuesta del LLMAppResponse: ---------------------------------")
+                    
                     print("   Respuesta recibida del LLM (LLMAppResponse):")
                     print("      generated_text:", repr(getattr(response, "generated_text", None)))
                     translations[lang_code] = (
@@ -171,14 +169,17 @@ class TranslatorAgent(AgentInterface):
                     message="OK"
                 )
             )
+            set_last_json(response_final)
+            print("Traductor_Agent   ------  get_last_json:", get_last_json())
+
             print("\n→ Respuesta final de TranslatorMapper.map_response:")
             print("  ", response_final)
             print("=== [Fin TranslatorAgent.run] ===\n")
-            set_last_json(response_final.content)
             return response_final
 
         except Exception as exc:
             print("✗ EXCEPCIÓN DETECTADA EN TranslatorAgent.run:", repr(exc))
+            print("Traductor_Agent con excepcion   ------  get_last_json:", get_last_json())
             response_exc = TranslatorMapper.map_response(
                 TranslatorResponseDTO(
                     products=[],

@@ -140,7 +140,12 @@ class Gemini(LLMInterface):
     
     def get_base_url(self) -> str:
         # Para compatibilidad, aunque Gemini no usa URL directa
+        return "https://generativelanguage.googleapis.com/"    
+    
+    def get_base_url_for_agent(self) -> str:
+        # Para compatibilidad, aunque Gemini no usa URL directa
         return "https://generativelanguage.googleapis.com/"
+    
     def get_api_key(self) -> str:
         # Para compatibilidad, aunque Gemini no usa URL directa
         return self.api_key

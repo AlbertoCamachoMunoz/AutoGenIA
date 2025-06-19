@@ -78,7 +78,7 @@ class DependencyInjector:
             provider = DependencyInjector.get_llm_provider(llm_type)  #aquí estará cacheado, no vuelve a instanciar
             DependencyInjector._wrapper_cache = [
                 AgentAutoGenWrapper("scraper", WebScraperAgent, WebScraperAgent(None)),
-                # AgentAutoGenWrapper("translator", TranslatorAgent, TranslatorAgent(provider)),
+                AgentAutoGenWrapper("translator", TranslatorAgent, TranslatorAgent(provider)),
                 # AgentAutoGenWrapper("email",   EmailAgent,       EmailAgent(None))
             ]
         return DependencyInjector._wrapper_cache

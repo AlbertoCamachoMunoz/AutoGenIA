@@ -53,7 +53,7 @@ def main() -> None:
             )
 
             # Muestra la tabla básica por consola
-            print("\n--- RESULTADO TRADUCCIÓN ---------------------------------")
+            print("\n--- RESULTADO RUNTIME ---------------------------------")
             print("dto en el cli_app", dto)
 
             print("---------------------------------------------------------\n")

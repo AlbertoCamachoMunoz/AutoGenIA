@@ -51,6 +51,16 @@ class LLMInterface(ABC):
         Returns:
             str: Base url (ej. "https://localhost:1234/v1")
         """
+        pass    
+    
+    @abstractmethod
+    def get_base_url_for_agent(self) -> str:
+        """
+        Retorna la URL del proveedor LLM.
+
+        Returns:
+            str: Base url (ej. "https://localhost:1234/v1")
+        """
         pass
 
     @abstractmethod

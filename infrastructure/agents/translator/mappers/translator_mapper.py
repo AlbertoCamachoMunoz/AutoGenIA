@@ -11,6 +11,10 @@ class TranslatorMapper:
     @staticmethod
     def map_request(request: AgentAppRequest) -> TranslatorRequestDTO:
         content = request.content
+        # Soporta key "kwargs" igual que en el scrapper
+        if isinstance(content, dict) and "kwargs" in content and isinstance(content["kwargs"], dict):
+            content = content["kwargs"]
+
         products = [ProductToTranslate(**prod) for prod in content.get("products", [])]
         langs = [LangToTranslate(**lang) for lang in content.get("langs", [])]
         return TranslatorRequestDTO(products=products, langs=langs)

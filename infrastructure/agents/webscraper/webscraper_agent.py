@@ -126,13 +126,13 @@ class WebScraperAgent(AgentInterface):
             )
 
             set_last_json(products)
-            print("WebScraperAgent   ------  get_last_json:", get_last_json())
+            print("\n WebScraperAgent   ------  get_last_json:", get_last_json())
 
             return WebScraperMapper.map_response(dto)
 
         except Exception as exc:
             print("EXCEPCIÓN en WebScraperAgent:", exc)
-            print("WebScraperAgent con excepcion   ------  get_last_json:", get_last_json())
+            print("\n WebScraperAgent con excepcion   ------  get_last_json:", get_last_json())
             dto = WebScraperResponseDTO(
                 products=[],
                 status=StatusCode.ERROR,
