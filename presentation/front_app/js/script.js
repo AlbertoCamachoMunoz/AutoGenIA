@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <table id="tablaProductos" class="tech-table">
             <thead>
                 <tr>
-                    <th>Datos scrapeados</th>
+                    <th colspan="3" style="text-align: center !important;">Datos scrapeados</th>
                 </tr>
                 <tr>
                     <th>Descripción</th>

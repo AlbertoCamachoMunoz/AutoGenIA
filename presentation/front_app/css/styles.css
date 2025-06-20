@@ -21,6 +21,9 @@ body {
     margin-bottom: 1.6rem;
     text-shadow: 0 2px 8px #21242b80;
 }
+.title_scrapper{
+	text-align: center !important;
+}
 
 .menu-btn,
 .dropdown-menu {
@@ -486,6 +489,12 @@ body {
 }
 
 #openChallengesModal {
+    text-align: center !important;
+    align-self: center !important;
+    width: 100%;
+}
+
+#openReadmeModal {
     text-align: center !important;
     align-self: center !important;
     width: 100%;
