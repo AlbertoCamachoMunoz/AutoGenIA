@@ -2,7 +2,7 @@ flask-cors
 requests
 google-genai
 flask
-pyautogen
+ag2
 mwparserfromhell
 google-api-core
 openai
